@@ -154,7 +154,8 @@ function switchReport(type) {
         'sales': { t: 'Sales Intelligence', d: 'Comprehensive tracking and analysis of all transaction data.' },
         'purchases': { t: 'Purchase Analytics', d: 'Monitor procurement costs and supplier performance.' },
         'inventory': { t: 'Inventory Insights', d: 'Valuation, stock levels and movement history.' },
-        'profit-loss': { t: 'Profit & Loss (P&L)', d: 'Consolidated financial statement of revenue vs expenses.' }
+        'profit-loss': { t: 'Profit & Loss (P&L)', d: 'Consolidated financial statement of revenue vs expenses.' },
+        'movements': { t: 'Stock Movement Log', d: 'Detailed audit trail of all inventory inflows, outflows, and adjustments.' }
     };
     
     document.getElementById('active-report-title').innerText = titles[type].t;
@@ -191,8 +192,9 @@ async function runReport() {
     } else if (currentReport === 'profit-loss') {
         url += 'profit_loss';
     } else if (currentReport === 'inventory') {
-        // We reuse part of inventory API or add specific report
         url += 'inventory_valuation';
+    } else if (currentReport === 'movements') {
+        url = 'api/inventory.php?action=movements';
     }
 
     try {
@@ -225,7 +227,31 @@ function renderReport(data) {
         renderPnL(data);
     } else if (currentReport === 'inventory') {
         renderInventoryValuation(data);
+    } else if (currentReport === 'movements') {
+        renderMovementsTable(data);
     }
+}
+
+function renderMovementsTable(data) {
+    const columns = [
+        { title: 'Date/Time', data: 'date', render: d => new Date(d).toLocaleString() },
+        { title: 'Type', data: 'type', render: d => {
+            let cls = 'bg-info';
+            if (d === 'Sale' || d === 'Out' || d === 'Damage' || d === 'Loss') cls = 'bg-danger';
+            if (d === 'Reception' || d === 'In') cls = 'bg-success';
+            if (d === 'Reversal') cls = 'bg-warning text-dark';
+            return `<span class="badge ${cls}">${d}</span>`;
+        }},
+        { title: 'Product', data: 'product_name', render: d => `<span class="fw-bold">${d}</span>` },
+        { title: 'Qty', data: 'qty', className: 'text-center fw-bold', render: d => {
+            const cls = d > 0 ? 'text-success' : 'text-danger';
+            return `<span class="${cls}">${d > 0 ? '+' : ''}${d}</span>`;
+        }},
+        { title: 'Reference/Identifier', data: 'identifier', render: d => `<small class="text-muted">${d}</small>` },
+        { title: 'Processed By', data: 'username' }
+    ];
+
+    initDataTable(data, columns);
 }
 
 function renderInventoryValuation(data) {

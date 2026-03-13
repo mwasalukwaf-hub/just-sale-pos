@@ -75,7 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($action === 'movements') {
-        $sql = "
+        $start_date = $_GET['start_date'] ?? '';
+        $end_date = $_GET['end_date'] ?? '';
+
+        $sql = "SELECT * FROM (
             (SELECT r.received_date as date, 'Reception' as type, CONCAT('GRN-', r.id, ' (PO-', p.id, ') - ', s.name) as identifier, ri.quantity_received as qty, pr.name as product_name, u.username
              FROM receptions r
              JOIN purchases p ON r.purchase_id = p.id
@@ -108,8 +111,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              FROM stock_adjustments sa
              JOIN products pr ON sa.product_id = pr.id
              JOIN users u ON sa.user_id = u.id)
-            ORDER BY date DESC LIMIT 100";
-        $stmt = $pdo->query($sql);
+        ) as movements WHERE 1=1";
+
+        $params = [];
+        if ($start_date) {
+            $sql .= " AND DATE(date) >= ?";
+            $params[] = $start_date;
+        }
+        if ($end_date) {
+            $sql .= " AND DATE(date) <= ?";
+            $params[] = $end_date;
+        }
+
+        $sql .= " ORDER BY date DESC LIMIT 1000";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
     }
 } else {
