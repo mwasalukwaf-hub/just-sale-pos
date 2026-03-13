@@ -5,9 +5,13 @@ Advanced Inventory & Point of Sale Intelligence System designed for Speed, Secur
 ## 🚀 Key Features
 
 - **Point of Sale (POS)**: Fast, intuitive terminal for cashiers with multi-tab support and screen locking.
-- **Inventory Management**: Comprehensive SKU tracking, asset valuation, and stock movement audit trails.
+- **Inventory Management**: Purchase Orders (PO), Goods Reception, and SKU tracking.
+- **Reporting**: Dynamic sales reports, P&L analytics, and tax tracking.
+- **User Documentation**: Full manual available at [justsalepos.franklin.co.tz/help.php](https://justsalepos.franklin.co.tz/help.php)
+
+## 🚀 Key Modules
+
 - **Business Intelligence**: Real-time dashboard with trend analytics and financial KPIs.
-- **Pro Reporting**: Unified export engine for PDF and Excel reports (Sales, Purchases, P&L, Inventory).
 - **Goods Reception**: Integrated PO request and reception workflow.
 - **User Auditing**: Secure shift-based audit logs with discrepancy tracking.
 
