@@ -195,8 +195,64 @@ function removeItem(index) {
     renderCart();
 }
 
-function clearCart() {
-    if (confirm("Clear cart?")) {
+// Utility: Custom Mobile Alert/Confirm
+function showAlert(message, title = 'Alert', type = 'info') {
+    return new Promise(resolve => {
+        const modal = document.getElementById('mobileModal');
+        const icon = document.getElementById('modalIcon');
+        const titleEl = document.getElementById('modalTitle');
+        const msgEl = document.getElementById('modalMessage');
+        const primaryBtn = document.getElementById('modalPrimaryBtn');
+        const secondaryBtn = document.getElementById('modalSecondaryBtn');
+
+        // Set Icon based on type
+        icon.innerHTML = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
+        titleEl.innerText = title;
+        msgEl.innerText = message;
+        
+        secondaryBtn.style.display = 'none';
+        primaryBtn.innerText = 'OK';
+        primaryBtn.onclick = () => {
+            modal.classList.remove('modal-active');
+            resolve(true);
+        };
+
+        modal.classList.add('modal-active');
+    });
+}
+
+function showConfirm(message, title = 'Confirm') {
+    return new Promise(resolve => {
+        const modal = document.getElementById('mobileModal');
+        const icon = document.getElementById('modalIcon');
+        const titleEl = document.getElementById('modalTitle');
+        const msgEl = document.getElementById('modalMessage');
+        const primaryBtn = document.getElementById('modalPrimaryBtn');
+        const secondaryBtn = document.getElementById('modalSecondaryBtn');
+
+        icon.innerHTML = '❓';
+        titleEl.innerText = title;
+        msgEl.innerText = message;
+        
+        secondaryBtn.style.display = 'block';
+        secondaryBtn.innerText = 'Cancel';
+        primaryBtn.innerText = 'Confirm';
+
+        primaryBtn.onclick = () => {
+            modal.classList.remove('modal-active');
+            resolve(true);
+        };
+        secondaryBtn.onclick = () => {
+            modal.classList.remove('modal-active');
+            resolve(false);
+        };
+
+        modal.classList.add('modal-active');
+    });
+}
+
+async function clearCart() {
+    if (await showConfirm("Are you sure you want to clear all items?", "Clear Cart")) {
         cart = [];
         renderCart();
     }
@@ -269,18 +325,15 @@ async function submitOrder() {
         const data = await r.json();
         
         if (data.success) {
-            alert("Order Placed Successfully!");
+            await showAlert("Order has been placed successfully!", "Success", "success");
             cart = [];
             renderCart();
             closeCheckout();
-            
-            // Auto print if desktop silent printing is on, 
-            // but on mobile we usually use the device's thermal printer via SDK or window.print()
             window.print(); 
         } else {
-            alert("Error: " + data.message);
+            showAlert(data.message, "Order Failed", "error");
         }
     } catch (e) {
-        alert("Server error. Please try again.");
+        showAlert("Server communication error. Please try again.", "Error", "error");
     }
 }
