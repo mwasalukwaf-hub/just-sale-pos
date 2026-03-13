@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile POS | JUSTSALE</title>
+    <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/mobile-pos.css">
+</head>
+<body>
+
+    <!-- Shift Overlay -->
+    <div id="shiftOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:2000; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px;">
+        <i class="fa-solid fa-lock text-danger mb-4" style="font-size: 80px;"></i>
+        <h2 class="fw-bold mb-2">POS SHIFT CLOSED</h2>
+        <p class="text-muted mb-4">You must open a shift in the main system to start selling.</p>
+        <button onclick="window.location.reload()" class="btn btn-primary-custom w-100 py-3 rounded-pill bg-primary border-0 text-white fw-bold shadow">
+            <i class="fa-solid fa-sync me-2"></i> CHECK AGAIN
+        </button>
+        <a href="admin" class="mt-4 text-primary fw-bold text-decoration-none small">GO TO BACKOFFICE</a>
+    </div>
+
+    <!-- Header Section -->
+    <div class="pos-header">
+        <span id="pos-time">00:00 AM</span>
+        <span class="fw-bold">JUSTSALE MOBILE</span>
+        <div class="header-icons">
+            <i class="fa-solid fa-signal me-2"></i>
+            <i class="fa-solid fa-wifi me-2"></i>
+            <i class="fa-solid fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="pos-search-container">
+        <div style="flex:1; position:relative;">
+            <input type="text" id="productSearch" class="pos-search-input" placeholder="Enter Search Product" style="width:100%;">
+        </div>
+        <button class="btn-add-item"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+
+    <!-- Customer Section -->
+    <div style="padding:10px; background:white; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between;">
+        <div id="selectedCustomer" style="font-size:12px; font-weight:700; color:#666;">
+            <i class="fa-solid fa-user-circle me-1"></i> Walk-in Customer
+        </div>
+        <button onclick="alert('Customer selection coming soon')" style="background:none; border:none; color:var(--pos-green); font-size:12px; font-weight:700;">CHANGE</button>
+    </div>
+
+    <!-- Cart Section -->
+    <div class="pos-cart-section">
+        <table class="pos-table" id="cartTable">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th style="width: 50px;">Price</th>
+                    <th style="width: 100px;">Qty</th>
+                    <th style="width: 40px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="cartItems">
+                <!-- Items populated by JS -->
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">Cart is empty</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Action Buttons Grid -->
+    <div class="pos-actions-row">
+        <button class="btn-action btn-online">Online</button>
+        <button class="btn-action btn-ongoing">Ongoing</button>
+        <button class="btn-action btn-qrcode">QR code</button>
+        <button class="btn-action btn-more">More</button>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="pos-categories" id="categoryTabs">
+        <div class="category-tab active" data-id="all">All Category</div>
+        <!-- Loaded by JS -->
+    </div>
+
+    <!-- Products Grid -->
+    <div class="pos-products-grid" id="productsGrid">
+        <!-- Loaded by JS -->
+    </div>
+
+    <!-- Footer Section -->
+    <div class="pos-footer">
+        <div class="grand-total-bar">
+            Grand Total : <span id="totalAmount">0.00</span>
+        </div>
+        <div class="bottom-actions">
+            <button class="btn-bottom-icon btn-calc"><i class="fa-solid fa-calculator"></i></button>
+            <button class="btn-bottom-icon btn-clear" onclick="clearCart()"><i class="fa-solid fa-trash-can"></i></button>
+            <button class="btn-bottom-main btn-quick-order">Quick Order</button>
+            <button class="btn-bottom-main btn-place-order" onclick="openCheckout()">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Simple Checkout Modal (Mobile Friendly) -->
+    <div id="checkoutModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:flex-end; display:flex; visibility: hidden;">
+        <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:20px; animation: slideUp 0.3s ease;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold m-0">Payment Method</h4>
+                <button onclick="closeCheckout()" style="background:none; border:none; font-size:24px; color:#999;">&times;</button>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:30px;">
+                <button class="btn-payment active" onclick="setPaymentMethod('Cash')" style="padding:20px; border-radius:12px; border:2px solid var(--pos-green); background:white; font-weight:700;">
+                    <i class="fa-solid fa-money-bill-1 me-2"></i> CASH
+                </button>
+                <button class="btn-payment" onclick="setPaymentMethod('Mobile Money')" style="padding:20px; border-radius:12px; border:2px solid #ddd; background:white; font-weight:700;">
+                    <i class="fa-solid fa-mobile-screen me-2"></i> MOBILE
+                </button>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="display:block; font-size:12px; color:#666; font-weight:700; margin-bottom:8px;">TOTAL TO PAY</label>
+                <input type="text" id="finalTotal" readonly style="width:100%; font-size:32px; font-weight:900; background:#f8fafc; border:none; padding:15px; border-radius:12px; text-align:center;">
+            </div>
+
+            <button onclick="submitOrder()" style="width:100%; background:var(--pos-green); color:white; border:none; padding:20px; border-radius:15px; font-size:18px; font-weight:800; box-shadow: 0 10px 20px rgba(0,100,0,0.2);">
+                FINISH & PRINT RECEIPT
+            </button>
+        </div>
+    </div>
+
+    <style>
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-visible { visibility: visible !important; }
+        .btn-payment.active { background: rgba(0,100,0,0.05) !important; border-color: var(--pos-green) !important; color: var(--pos-green) !important; }
+    </style>
+
+    <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/mobile-pos.js"></script>
+</body>
+</html>
