@@ -53,10 +53,10 @@ async function checkShiftStatus() {
 
 async function loadCategories() {
     try {
-        const r = await fetch('api/inventory.php?action=list_categories');
+        const r = await fetch('api/products.php?action=list_categories');
         const data = await r.json();
         if (data.success) {
-            categoriesCache = data.categories;
+            categoriesCache = data.data;
             renderCategories();
         }
     } catch (e) { console.error("Load Categories failed", e); }
@@ -67,7 +67,7 @@ async function loadProducts() {
         const r = await fetch('api/products.php?action=list');
         const data = await r.json();
         if (data.success) {
-            productsCache = data.products;
+            productsCache = data.data;
             renderProducts();
         }
     } catch (e) { console.error("Load Products failed", e); }
