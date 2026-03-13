@@ -16,4 +16,4 @@ assets/img/logo/*
 
 # Licensing
 .license.lock
-/server_files/
+# /server_files/ -- Temporarily allowed for sync
