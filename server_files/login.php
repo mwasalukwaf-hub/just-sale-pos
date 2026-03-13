@@ -35,35 +35,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | JUSTSALE Licensing Portal</title>
+    <title>Merchant Login | JUSTSALE Portal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #1e293b; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: white; width: 100%; max-width: 400px; padding: 40px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        :root {
+            --primary: #4361ee;
+            --dark: #0f172a;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%);
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .auth-card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px);
+            width: 100%; 
+            max-width: 440px; 
+            padding: 50px; 
+            border-radius: 35px; 
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5); 
+        }
+        .form-control {
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+            border-color: var(--primary);
+        }
+        .brand-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+        }
     </style>
 </head>
 <body>
     <div class="auth-card">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-primary">Welcome Back</h2>
-            <p class="text-muted small">Manage your JUSTSALE licenses</p>
+        <div class="text-center">
+            <div class="brand-icon"><i class="fa-solid fa-cash-register"></i></div>
+            <h2 class="fw-bold text-dark mb-1">Merchant Portal</h2>
+            <p class="text-muted small mb-5">Access your license management dashboard</p>
         </div>
-        <?php if(isset($error)) echo "<div class='alert alert-danger py-2 small'>$error</div>"; ?>
+        
+        <?php if(isset($error)) echo "<div class='alert alert-danger border-0 rounded-4 py-3 mb-4 small fw-bold'>$error</div>"; ?>
+        
         <form method="POST">
-            <div class="mb-3">
-                <label class="form-label small fw-bold">Email Address</label>
-                <input type="email" name="email" class="form-control" required>
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase opacity-75">Email Address</label>
+                <input type="email" name="email" class="form-control" placeholder="name@company.com" required autofocus>
             </div>
             <div class="mb-4">
-                <label class="form-label small fw-bold">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="form-label small fw-bold text-uppercase opacity-75">Password</label>
+                    <a href="#" class="small text-decoration-none text-primary opacity-75 fw-bold">Forgot?</a>
+                </div>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold">Login to Portal</button>
+            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-lg" style="background: var(--primary); border:none;">
+                Log In to Dashboard <i class="fa-solid fa-arrow-right-long ms-2"></i>
+            </button>
         </form>
-        <div class="mt-4 text-center">
-            <p class="small text-muted">New user? <a href="register.php" class="text-primary fw-bold text-decoration-none">Create Account</a></p>
+        
+        <div class="mt-5 text-center">
+            <p class="small text-muted mb-0">Don't have an account? <br>
+                <a href="register.php" class="text-primary fw-bold text-decoration-none fs-6">Create Merchant ID</a>
+            </p>
         </div>
     </div>
 </body>
