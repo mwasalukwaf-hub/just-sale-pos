@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setup Wizard | JUSTSALE POS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="assets/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         body { background: #f4f7f6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -36,7 +36,7 @@
             <div class="step" id="s4">4</div>
         </div>
 
-        <form id="installForm">
+        <form id="installForm" novalidate>
             <!-- Step 1: Database -->
             <div class="install-step-content active" id="step1">
                 <h5 class="fw-bold mb-4">Database Configuration</h5>
@@ -129,11 +129,29 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 <script>
     let currentStep = 1;
 
     function nextStep(s) {
+        // Validate current step before going to next
+        const currentContainer = document.querySelector('.install-step-content.active');
+        const inputs = currentContainer.querySelectorAll('input[required]');
+        let valid = true;
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                valid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        if (!valid) {
+            Swal.fire('Required Fields', 'Please fill in all required fields.', 'warning');
+            return;
+        }
+
         document.querySelectorAll('.install-step-content').forEach(el => el.classList.remove('active'));
         document.getElementById('step' + s).classList.add('active');
         
@@ -155,6 +173,23 @@
     }
 
     async function testDB() {
+        const currentContainer = document.getElementById('step1');
+        const inputs = currentContainer.querySelectorAll('input[required]');
+        let valid = true;
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                valid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        if (!valid) {
+            Swal.fire('Required Fields', 'Please enter your database details.', 'warning');
+            return;
+        }
+
         const fd = new FormData(document.getElementById('installForm'));
         const body = new URLSearchParams(fd);
         
@@ -162,7 +197,12 @@
             const res = await fetch('api/installer.php?action=test_db', { method: 'POST', body });
             const data = await res.json();
             if (data.success) {
-                nextStep(2);
+                // Manually move to next step since we skipped nextStep(2) call to do DB check
+                document.querySelectorAll('.install-step-content').forEach(el => el.classList.remove('active'));
+                document.getElementById('step2').classList.add('active');
+                document.getElementById('s1').classList.add('completed');
+                document.getElementById('s2').classList.add('active', 'completed');
+                currentStep = 2;
             } else {
                 Swal.fire('DB Error', data.message, 'error');
             }

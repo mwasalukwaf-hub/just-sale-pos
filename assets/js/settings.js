@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
+
+    // Update listeners
+    document.getElementById('btn-check-updates').addEventListener('click', checkUpdates);
+    document.getElementById('btn-start-update').addEventListener('click', startUpdate);
 });
 
 async function loadSettings() {
@@ -136,6 +140,102 @@ async function saveSettings(e) {
         Swal.fire('Error', 'Connection failed', 'error');
     } finally {
         btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function checkUpdates() {
+    const btn = document.getElementById('btn-check-updates');
+    const statusText = document.getElementById('update-status-text');
+    const detailsDiv = document.getElementById('update-details');
+    const originalContent = btn.innerHTML;
+
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Checking...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('api/updater.php?action=check');
+        const data = await res.json();
+
+        if (data.update_available) {
+            statusText.innerHTML = `<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation"></i> A new update (${data.latest_version}) is available!</span>`;
+            document.getElementById('new-version-number').innerText = data.latest_version;
+            document.getElementById('new-version-changelog').innerText = data.changelog;
+            detailsDiv.style.display = 'block';
+            
+            window.latestUpdateInfo = data; // Store globally
+        } else {
+            statusText.innerHTML = '<span class="text-success fw-bold"><i class="fa-solid fa-circle-check"></i> You are running the latest version.</span>';
+            detailsDiv.style.display = 'none';
+        }
+    } catch (err) {
+        Swal.fire('Error', 'Update server is currently unavailable.', 'error');
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
+}
+
+async function startUpdate() {
+    if (!window.latestUpdateInfo) return;
+
+    const confirm = await Swal.fire({
+        title: 'System Update',
+        text: 'This will download and replace system files. Please ensure you have a database backup before proceeding.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, proceed with update',
+        cancelButtonText: 'Not now'
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const btn = document.getElementById('btn-start-update');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Downloading update...';
+    btn.disabled = true;
+
+    try {
+        // Step 1: Download
+        const fd = new FormData();
+        fd.append('url', window.latestUpdateInfo.download_url);
+        fd.append('version', window.latestUpdateInfo.latest_version);
+
+        const dlRes = await fetch('api/updater.php?action=download', {
+            method: 'POST',
+            body: fd
+        });
+        const dlData = await dlRes.json();
+
+        if (!dlData.success) {
+            throw new Error(dlData.message);
+        }
+
+        // Step 2: Apply
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Applying updates... (Don\'t close this window)';
+        
+        const applyFd = new FormData();
+        applyFd.append('zip_path', dlData.zip_path);
+
+        const applyRes = await fetch('api/updater.php?action=apply', {
+            method: 'POST',
+            body: applyFd
+        });
+        const applyData = await applyRes.json();
+
+        if (applyData.success) {
+            await Swal.fire({
+                title: 'Update Successful!',
+                text: applyData.message,
+                icon: 'success'
+            });
+            window.location.reload();
+        } else {
+            throw new Error(applyData.message);
+        }
+
+    } catch (err) {
+        Swal.fire('Update Failed', err.message, 'error');
+        btn.innerHTML = '<i class="fa-solid fa-download me-1"></i> Download & Install Update';
         btn.disabled = false;
     }
 }

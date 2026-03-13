@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Settings | JUSTSALE</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="assets/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
@@ -58,6 +58,10 @@
                                     data-bs-toggle="pill" data-bs-target="#v-pills-receipt" type="button" role="tab">
                                     <i class="fa-solid fa-receipt me-2"></i> Receipt Setup
                                 </button>
+                                <button class="nav-link text-start mb-2 fw-bold" id="v-pills-updates-tab"
+                                    data-bs-toggle="pill" data-bs-target="#v-pills-updates" type="button" role="tab">
+                                    <i class="fa-solid fa-cloud-arrow-down me-2"></i> System Updates
+                                </button>
                                 <a href="users" class="nav-link text-start mb-2 fw-bold"
                                     style="color: var(--text-dark);">
                                     <i class="fa-solid fa-users me-2"></i> User Management
@@ -75,7 +79,7 @@
 
                                         <div class="row align-items-center mb-4">
                                             <div class="col-md-4 text-center">
-                                                <img id="logoPreview" src="https://via.placeholder.com/150?text=No+Logo"
+                                                <img id="logoPreview" src="assets/uploads/no_logo.png"
                                                     alt="Company Logo" class="img-thumbnail rounded-circle mb-3"
                                                     style="width: 120px; height: 120px; object-fit: contain;">
                                                 <div>
@@ -259,6 +263,39 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <!-- Updates Tab -->
+                                    <div class="tab-pane fade" id="v-pills-updates" role="tabpanel">
+                                        <h5 class="fw-bold mb-4 text-primary">System Updates</h5>
+                                        <div class="card bg-light border-0 rounded-4 p-4 mb-4">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="fw-bold mb-1">Current Version: <span class="text-primary" id="current-version-display">2.0.4</span></h6>
+                                                    <p class="text-muted small mb-0" id="update-status-text">Your system is up to date.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <button type="button" class="btn btn-outline-primary fw-bold" id="btn-check-updates">
+                                                        <i class="fa-solid fa-sync me-1"></i> Check for Updates
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="update-details" style="display:none;">
+                                            <div class="alert alert-info border-0 shadow-sm rounded-4">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fa-solid fa-circle-info fs-3 me-3"></i>
+                                                    <div>
+                                                        <h6 class="fw-bold mb-1">New Version Available: <span id="new-version-number"></span></h6>
+                                                        <p class="small mb-2" id="new-version-changelog"></p>
+                                                        <button type="button" class="btn btn-primary btn-sm fw-bold" id="btn-start-update">
+                                                            <i class="fa-solid fa-download me-1"></i> Download & Install Update
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="px-4 pb-4 text-end">
@@ -282,8 +319,8 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/settings.js"></script>
 </body>

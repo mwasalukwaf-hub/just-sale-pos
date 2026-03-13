@@ -77,7 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'login') {
                     'email' => $_SESSION['email'],
                     'mobile' => $_SESSION['mobile'],
                     'short_details' => $_SESSION['short_details']
-                ]
+                ],
+                'system_version' => SYSTEM_VERSION
             ]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Not authenticated']);

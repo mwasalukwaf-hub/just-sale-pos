@@ -118,6 +118,12 @@ async function checkAuth(requiredRole = null) {
             `;
         }
 
+        // Update version tag if exists
+        const versionTag = document.querySelector('.version-tag');
+        if (versionTag && data.system_version) {
+            versionTag.innerText = 'Ver: ' + data.system_version;
+        }
+
         return data.user;
     } catch (e) {
         window.location.href = 'login';

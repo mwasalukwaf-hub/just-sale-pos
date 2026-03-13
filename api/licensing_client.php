@@ -36,10 +36,18 @@ class LicensingClient {
         $data = json_decode(file_get_contents(self::$config_file), true);
         if (!$data || !isset($data['license_key'])) return false;
 
-        // Optionally check if the cached result is too old (e.g. check server every 24h)
-        if (isset($data['last_check']) && (time() - $data['last_check'] > 86400)) {
-            // Heartbeat check in background or on next request
-            return self::verifyWithServer($data['license_key']);
+        // Heartbeat check every 30 days (2592000 seconds)
+        if (isset($data['last_check']) && (time() - $data['last_check'] > 2592000)) {
+            // Attempt to verify with server. If it fails due to NO INTERNET, we still allow access 
+            // unless it's been even longer (e.g., a grace period).
+            $verified = self::verifyWithServer($data['license_key']);
+            if (!$verified) {
+                // If server is unreachable, we check if we should still allow (Grace period 35 days total)
+                if (time() - $data['last_check'] > 3024000) {
+                    return false; // Hard block after 35 days
+                }
+            }
+            return true;
         }
 
         return true;
@@ -64,7 +72,8 @@ class LicensingClient {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10); // 10 second timeout
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); 
         
         $response = curl_exec($ch);
         $error = curl_error($ch);
@@ -102,6 +111,8 @@ class LicensingClient {
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Short timeout for verification
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
         
         $response = curl_exec($ch);
         curl_close($ch);

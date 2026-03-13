@@ -1,6 +1,6 @@
-vendor/
-composer.phar
-composer.lock
+/vendor/
+/composer.phar
+/composer.lock
 .env
 uploads/*
 !uploads/.gitkeep
@@ -16,4 +16,3 @@ assets/img/logo/*
 
 # Licensing
 .license.lock
-/server_files/

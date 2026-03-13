@@ -12,7 +12,10 @@ CREATE TABLE IF NOT EXISTS `users` (
   `fullname` varchar(100) DEFAULT NULL,
   `password_hash` varchar(255) NOT NULL,
   `role` enum('Admin','Accounts','Cashier') NOT NULL,
+  `mobile` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
   `photo` varchar(255) DEFAULT NULL,
+  `short_details` text DEFAULT NULL,
   `created_at` timestamp DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -194,6 +197,11 @@ INSERT IGNORE INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('company_name', 'JUSTSALE'),
 ('company_currency_code', 'USD'),
 ('company_currency_name', 'US Dollar'),
+('company_tin', ''),
+('company_vrn', ''),
+('company_address', ''),
+('company_phone', ''),
+('company_email', ''),
 ('sku_template', 'PROD-{MMYYYY}-00000'),
 ('sku_next_number', '1'),
 ('tax_percent', '0'),
