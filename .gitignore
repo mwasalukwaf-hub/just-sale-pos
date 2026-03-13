@@ -5,6 +5,7 @@
 uploads/*
 !uploads/.gitkeep
 api/db.php
+.installed
 assets/img/logo/*
 !assets/img/logo/.gitkeep
 *.log
