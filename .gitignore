@@ -19,6 +19,6 @@ assets/img/logo/*
 .license.lock
 
 # Server Files (Central Server Only)
-/server_files/
+# /server_files/
 # Distribution
 /DIST/
