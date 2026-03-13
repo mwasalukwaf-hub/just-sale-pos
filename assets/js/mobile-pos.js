@@ -5,6 +5,7 @@ let categoriesCache = [];
 let cart = [];
 let selectedCategoryId = 'all';
 let paymentMethod = 'Cash';
+let selectedCustomer = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     updateTime();
@@ -18,6 +19,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Binds
     document.getElementById('productSearch').addEventListener('input', handleSearch);
+    document.getElementById('customerSearch').addEventListener('input', handleCustomerSearch);
+    document.getElementById('addCustomerForm').addEventListener('submit', handleAddCustomer);
 });
 
 async function checkAuth() {
@@ -144,6 +147,12 @@ function addToCart(product) {
         });
     }
     renderCart();
+
+    // Visual feedback
+    showAlert(`Added ${product.name} to cart`, "Cart Updated", "success");
+    setTimeout(() => {
+        document.getElementById('mobileModal').classList.remove('modal-active');
+    }, 700);
 }
 
 function renderCart() {
@@ -280,6 +289,99 @@ function updateTime() {
     document.getElementById('pos-time').innerText = `${hours}:${minutes} ${ampm}`;
 }
 
+// Customer Management
+function openCustomerModal() {
+    const modal = document.getElementById('customerModal');
+    modal.style.display = 'flex';
+    modal.classList.add('modal-visible');
+    handleCustomerSearch(); // Initial load
+}
+
+function closeCustomerModal() {
+    const modal = document.getElementById('customerModal');
+    modal.classList.remove('modal-visible');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+}
+
+function openAddCustomerModal() {
+    const modal = document.getElementById('addCustomerModal');
+    modal.style.display = 'flex';
+    modal.classList.add('modal-visible');
+}
+
+function closeAddCustomerModal() {
+    const modal = document.getElementById('addCustomerModal');
+    modal.classList.remove('modal-visible');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+}
+
+async function handleCustomerSearch() {
+    const term = document.getElementById('customerSearch').value;
+    try {
+        const r = await fetch(`api/customers.php?action=list&search=${encodeURIComponent(term)}`);
+        const data = await r.json();
+        if (data.success) {
+            renderCustomerList(data.data);
+        }
+    } catch (e) { console.error("Customer search failed", e); }
+}
+
+function renderCustomerList(customers) {
+    const container = document.getElementById('customerList');
+    container.innerHTML = '';
+
+    // Walk-in option
+    const walkIn = document.createElement('div');
+    walkIn.style = 'padding:18px; border-bottom:1px solid #eee; display:flex; align-items:center; cursor:pointer;';
+    walkIn.innerHTML = `<i class="fa-solid fa-user-circle me-3" style="font-size:24px; color:#999;"></i> <div><div class="fw-bold">Walk-in Customer</div></div>`;
+    walkIn.onclick = () => selectCustomer(null);
+    container.appendChild(walkIn);
+
+    customers.forEach(c => {
+        const item = document.createElement('div');
+        item.style = 'padding:18px; border-bottom:1px solid #eee; display:flex; align-items:center; cursor:pointer;';
+        item.innerHTML = `
+            <i class="fa-solid fa-user-circle me-3" style="font-size:24px; color:var(--pos-green);"></i>
+            <div>
+                <div class="fw-bold">${c.name}</div>
+                <div class="small text-muted">${c.mobile || 'No mobile'}</div>
+            </div>
+        `;
+        item.onclick = () => selectCustomer(c);
+        container.appendChild(item);
+    });
+}
+
+function selectCustomer(customer) {
+    selectedCustomer = customer;
+    const display = document.getElementById('selectedCustomer');
+    if (customer) {
+        display.innerHTML = `<i class="fa-solid fa-user-circle me-1 text-success"></i> ${customer.name}`;
+    } else {
+        display.innerHTML = `<i class="fa-solid fa-user-circle me-1"></i> Walk-in Customer`;
+    }
+    closeCustomerModal();
+}
+
+async function handleAddCustomer(e) {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    try {
+        const r = await fetch('api/customers.php?action=add', { method: 'POST', body: fd });
+        const data = await r.json();
+        if (data.success) {
+            showAlert("Customer registered successfully!", "Success", "success");
+            selectCustomer({ id: data.id, name: fd.get('name'), mobile: fd.get('mobile') });
+            closeAddCustomerModal();
+            closeCustomerModal();
+        } else {
+            showAlert(data.message, "Error", "error");
+        }
+    } catch (e) {
+        showAlert("Failed to register customer", "Error", "error");
+    }
+}
+
 // Checkout Logic
 function openCheckout() {
     if (cart.length === 0) return;
@@ -314,7 +416,7 @@ async function submitOrder() {
         discount: 0,
         total_amount: total,
         payment_method: paymentMethod,
-        customer_id: null
+        customer_id: selectedCustomer ? selectedCustomer.id : null
     };
 
     try {
