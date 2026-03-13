@@ -101,10 +101,10 @@
 
     <!-- Customer Selection Modal -->
     <div id="customerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1100; align-items:flex-end; display:flex; visibility: hidden;">
-        <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:20px; animation: slideUp 0.3s ease; height: 80vh; display: flex; flex-direction: column;">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="fw-bold m-0">Select Customer</h4>
-                <button onclick="closeCustomerModal()" style="background:#f1f3f5; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057;">&times;</button>
+        <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:20px; animation: slideUp 0.3s ease; height: 80vh; display: flex; flex-direction: column; position: relative;">
+            <div class="mb-3">
+                <h4 class="fw-bold m-0" style="padding-right: 40px;">Select Customer</h4>
+                <button onclick="closeCustomerModal()" style="position: absolute; top: 15px; right: 15px; background:#f1f3f5; border:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057; z-index:10;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div class="mb-3" style="position:relative;">
@@ -124,10 +124,10 @@
 
     <!-- Add Customer Modal -->
     <div id="addCustomerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1200; align-items:flex-end; display:flex; visibility: hidden;">
-        <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:25px; animation: slideUp 0.3s ease;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:25px; animation: slideUp 0.3s ease; position: relative;">
+            <div class="mb-4">
                 <h4 class="fw-bold m-0">New Customer</h4>
-                <button onclick="closeAddCustomerModal()" style="background:#f1f3f5; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057;">&times;</button>
+                <button onclick="closeAddCustomerModal()" style="position: absolute; top: 15px; right: 15px; background:#f1f3f5; border:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057; z-index:10;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <form id="addCustomerForm">
@@ -156,10 +156,10 @@
 
     <!-- Simple Checkout Modal (Mobile Friendly) -->
     <div id="checkoutModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:flex-end; display:flex; visibility: hidden;">
-        <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:20px; animation: slideUp 0.3s ease;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:20px; animation: slideUp 0.3s ease; position: relative;">
+            <div class="mb-4">
                 <h4 class="fw-bold m-0">Payment Method</h4>
-                <button onclick="closeCheckout()" style="background:#f1f3f5; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057;">&times;</button>
+                <button onclick="closeCheckout()" style="position: absolute; top: 15px; right: 15px; background:#f1f3f5; border:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057; z-index:10;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:30px;">
