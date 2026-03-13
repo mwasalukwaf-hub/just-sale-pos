@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Intel & Reports | JUSTSALE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root {
+            --report-bg: #f8f9fc;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: var(--report-bg);
+        }
+
+        .reports-container {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        .reports-sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #e3e6f0;
+            padding: 1.5rem;
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+        .reports-main {
+            flex: 1;
+            padding: 1.5rem;
+        }
+
+        .report-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            color: #4e73df;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .report-nav-item i {
+            width: 20px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        .report-nav-item:hover {
+            background: #f1f3f9;
+        }
+
+        .report-nav-item.active {
+            background: #4e73df;
+            color: white;
+            box-shadow: 0 4px 6px rgba(78, 115, 223, 0.2);
+        }
+
+        .card-report {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.05);
+        }
+
+        .stat-card {
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .table-custom thead {
+            background: #f8f9fc;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .dt-buttons .btn {
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-main-nav">
+        <div class="d-flex align-items-center">
+            <div class="brand"><i class="fa-solid fa-cash-register me-2"></i>JUSTSALE</div>
+            <div class="nav-links-container">
+                <a href="admin" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="pos" target="_blank" class="nav-link"><i class="fa-solid fa-cash-register"></i> POS Terminal</a>
+                <div class="dropdown nav-link-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-boxes-stacked"></i> Inventory
+                    </a>
+                    <ul class="dropdown-menu shadow-sm">
+                        <li><a class="dropdown-item" href="inventory">Catalog & Movements</a></li>
+                        <li><a class="dropdown-item" href="receive-goods">PO Request</a></li>
+                        <li><a class="dropdown-item" href="reception">Goods Reception</a></li>
+                        <li><a class="dropdown-item" href="purchases">Purchase Orders</a></li>
+                    </ul>
+                </div>
+                <a href="reports" class="nav-link active"><i class="fa-solid fa-file-invoice-dollar"></i> Reports</a>
+            </div>
+        </div>
+        <div class="nav-user-controls" id="current-user"></div>
+    </nav>
+
+    <div class="reports-container">
+        <!-- Sidebar Navigation -->
+        <aside class="reports-sidebar">
+            <div class="mb-4">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Report Categories</h6>
+                
+                <a href="#sales" class="report-nav-item active" data-report="sales">
+                    <i class="fa-solid fa-cart-shopping"></i> Sales Intelligence
+                </a>
+                <a href="#purchases" class="report-nav-item" data-report="purchases">
+                    <i class="fa-solid fa-truck-loading"></i> Purchase Analytics
+                </a>
+                <a href="#inventory" class="report-nav-item" data-report="inventory">
+                    <i class="fa-solid fa-boxes-stacked"></i> Inventory Insights
+                </a>
+                <a href="#profit-loss" class="report-nav-item" data-report="profit-loss">
+                    <i class="fa-solid fa-chart-line"></i> Profit & Loss (P&L)
+                </a>
+            </div>
+
+            <div class="mt-auto pt-4 border-top">
+                <div class="alert alert-primary bg-opacity-10 border-0 rounded-4 p-3 mb-0">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fa-solid fa-lightbulb text-primary me-2"></i>
+                        <span class="fw-bold small">Pro Tip</span>
+                    </div>
+                    <p class="small text-muted mb-0">Use the filters above the reports to narrow down specific data ranges or entities.</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="reports-main">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold text-dark mb-1" id="active-report-title">Sales Intelligence</h3>
+                    <p class="text-muted mb-0">Comprehensive tracking and analysis of all transaction data.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-white shadow-sm border px-3" onclick="window.location.reload()">
+                        <i class="fa-solid fa-rotate me-1 text-primary"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Global Filter Section -->
+            <div class="filter-section">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted">Date Range</label>
+                        <select class="form-select border shadow-none" id="filter-date-preset">
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="last7">Last 7 Days</option>
+                            <option value="thisMonth" selected>This Month</option>
+                            <option value="lastMonth">Last Month</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 custom-date-range" style="display:none;">
+                        <label class="form-label small fw-bold text-muted">Start Date</label>
+                        <input type="date" class="form-control border shadow-none" id="filter-start-date">
+                    </div>
+                    <div class="col-md-3 custom-date-range" style="display:none;">
+                        <label class="form-label small fw-bold text-muted">End Date</label>
+                        <input type="date" class="form-control border shadow-none" id="filter-end-date">
+                    </div>
+                    
+                    <!-- Sales Specific Filters -->
+                    <div class="col-md-3 filter-item filter-sales">
+                        <label class="form-label small fw-bold text-muted">Users</label>
+                        <select class="form-select border shadow-none select2-init" id="filter-sales-user">
+                            <option value="">All Staff</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 filter-item filter-sales">
+                        <label class="form-label small fw-bold text-muted">Customer</label>
+                        <select class="form-select border shadow-none select2-init" id="filter-sales-customer">
+                            <option value="">All Customers</option>
+                        </select>
+                    </div>
+
+                    <!-- Purchase Specific Filters -->
+                    <div class="col-md-3 filter-item filter-purchases" style="display:none;">
+                        <label class="form-label small fw-bold text-muted">Supplier</label>
+                        <select class="form-select border shadow-none select2-init" id="filter-purchase-supplier">
+                            <option value="">All Suppliers</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-auto ms-auto">
+                        <button class="btn btn-primary px-4 fw-bold shadow-sm" id="btn-run-report">
+                            <i class="fa-solid fa-magnifying-glass me-2"></i>Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Metrics -->
+            <div id="report-summary" class="row g-3 mb-4">
+                <!-- Loaded via JS -->
+            </div>
+
+            <!-- Main Data Card -->
+            <div class="card card-report">
+                <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="m-0 fw-bold text-dark"><i class="fa-solid fa-list-ul me-2 text-primary"></i>Report Details</h5>
+                    <div id="export-actions"></div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table id="reports-table" class="table table-hover align-middle table-custom" style="width:100%">
+                            <!-- Thead will be dynamic -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section (Conditional) -->
+            <div class="row mt-4" id="charts-container" style="display:none;">
+                <div class="col-md-8">
+                    <div class="card card-report h-100">
+                        <div class="card-header bg-white py-3 px-4 border-bottom">
+                            <h6 class="m-0 fw-bold">Performance Analytics</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="reportChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-report h-100">
+                        <div class="card-header bg-white py-3 px-4 border-bottom">
+                            <h6 class="m-0 fw-bold">Category Distribution</h6>
+                        </div>
+                        <div class="card-body d-flex align-items-center">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer text-center">
+        <div class="container">
+            <span class="text-muted small">JUSTSALE POS System | Powered by <a href="http://franklin.co.tz/justsalePOS" target="_blank" class="text-primary fw-bold text-decoration-none">Franklin</a></span>
+            <span class="version-tag">Ver: 2.0.4</span>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- DataTables & Extensions -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/reports.js"></script>
+</body>
+
+</html>

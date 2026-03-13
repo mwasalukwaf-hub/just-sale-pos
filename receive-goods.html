@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Order Request | JUSTSALE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Hide number arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .select2-container--bootstrap-5 {
+            z-index: 1060;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-main-nav">
+        <div class="d-flex align-items-center">
+            <div class="brand"><i class="fa-solid fa-cash-register me-2"></i>JUSTSALE</div>
+            <div class="nav-links-container">
+                <a href="admin" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="pos" target="_blank" class="nav-link"><i class="fa-solid fa-cash-register"></i> POS
+                    Terminal</a>
+                <div class="dropdown nav-link-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-solid fa-boxes-stacked"></i> Inventory
+                    </a>
+                    <ul class="dropdown-menu shadow-sm">
+                        <li><a class="dropdown-item" href="inventory"><i class="fa-solid fa-boxes-stacked"></i> Catalog
+                                &
+                                Movements</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item active" href="receive-goods"><i
+                                    class="fa-solid fa-file-invoice"></i>
+                                PO Request</a></li>
+                        <li><a class="dropdown-item" href="reception"><i class="fa-solid fa-truck-pickup"></i> Goods
+                                Reception</a></li>
+                        <li><a class="dropdown-item" href="purchases"><i class="fa-solid fa-file-invoice-dollar"></i>
+                                Purchase Orders</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="suppliers"><i class="fa-solid fa-handshake"></i>
+                                Suppliers</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="nav-user-controls" id="current-user"></div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="m-0 text-secondary fw-bold"><i class="fa-solid fa-file-invoice me-2 text-primary"></i>Purchase
+                Order (PO) Request</h4>
+            <a href="inventory" class="btn btn-light border shadow-sm px-4">
+                <i class="fa-solid fa-arrow-left me-2"></i> Back to Inventory
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Side: Add Form -->
+            <div class="col-md-5">
+                <div class="card card-elegant border-0 shadow-sm h-100">
+                    <div class="card-header bg-success text-white py-3">
+                        <h5 class="mb-0 fw-bold"><i class="fa-solid fa-cart-shopping me-2"></i>PO Details</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">Supplier Identity</label>
+                            <select class="form-select select2-init border" id="receive_supplier_select">
+                                <option value="">-- Choose Supplier --</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">Expected Delivery Date</label>
+                            <input type="date" class="form-control px-3 py-2 border" id="receive_date">
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">Item Selection</label>
+                            <select class="form-select select2-init border" id="receive_product_select"></select>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Acquisition Qty</label>
+                                <input type="number" class="form-control border px-3 py-2" id="receive_qty" min="1"
+                                    value="1">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Unit Cost</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border currency-symbol"></span>
+                                    <input type="number" step="0.01" class="form-control border-start-0 py-2"
+                                        id="receive_cost">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-success w-100 p-3 fw-bold shadow-sm" id="addReceiveItemBtn">
+                            <i class="fa-solid fa-plus-circle me-2"></i> Add to Inspection List
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Inspection List -->
+            <div class="col-md-7">
+                <div class="card card-elegant border-0 shadow-sm h-100">
+                    <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold"><i class="fa-solid fa-list-check me-2"></i>Inspection List</h5>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="table-responsive border rounded-3 flex-grow-1" style="min-height: 300px;">
+                            <table class="table table-hover mb-0" id="inspectionTable" style="width:100%">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-3 py-2 border-0">Line Item</th>
+                                        <th class="py-2 border-0 text-center">Qty</th>
+                                        <th class="py-2 border-0">Unit Cost</th>
+                                        <th class="py-2 border-0">Extension</th>
+                                        <th class="text-end pe-3 py-2 border-0">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="receiveBody"></tbody>
+                            </table>
+                        </div>
+
+                        <div
+                            class="d-flex justify-content-between align-items-center bg-light border p-3 rounded-3 mt-4">
+                            <span class="text-muted small fw-bold text-uppercase">Grand Total Valuation</span>
+                            <h4 class="mb-0 fw-black text-dark"><span id="receiveTotalAmount">USD 0.00</span></h4>
+                        </div>
+
+                        <button type="button" class="btn btn-primary-custom w-100 mt-3 p-4 fw-bold shadow-sm"
+                            id="submitReceiveBtn">
+                            <i class="fa-solid fa-file-signature me-2"></i>Finalize & Generate Purchase Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer text-center">
+        <div class="container">
+            <span class="text-muted small">JUSTSALE POS System | Powered by <a href="http://franklin.co.tz/justsalePOS" target="_blank" class="text-primary fw-bold text-decoration-none">Franklin</a></span>
+            <span class="version-tag">Ver: 2.0.4</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/receive-goods.js"></script>
+</body>
+
+</html>

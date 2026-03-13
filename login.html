@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | JUSTSALE POS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .form-control:focus {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        input::placeholder {
+            color: #d0d0d0 !important;
+        }
+    </style>
+</head>
+
+<body class="auth-wrapper">
+
+    <div class="container h-100 d-flex align-items-center justify-content-center">
+        <div class="row w-100 justify-content-center">
+            <div class="col-md-6">
+                <div class="auth-card fade-in w-100">
+                    <div class="auth-brand">
+                        <img id="loginLogo" src="" alt="Logo" class="img-fluid mb-2 d-none" style="max-height: 80px;">
+                        <div id="loginBrandText"><i class="fa-solid fa-cash-register me-2"></i>JUSTSALE</div>
+                    </div>
+                    <h5 class="text-center text-muted mb-4 fw-bold">Sign in to your account</h5>
+
+                    <form id="loginForm" autocomplete="off">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Username</label>
+                            <div class="input-group border rounded">
+                                <span class="input-group-text border-0"><i
+                                        class="fa-solid fa-user text-muted"></i></span>
+                                <input type="text" class="form-control border-0 px-0" name="username"
+                                    placeholder="e.g. admin" required autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label text-muted small fw-bold">Password</label>
+                                <a href="javascript:void(0)" onclick="showForgotPassword()"
+                                    class="text-primary small fw-bold text-decoration-none">Forgot Password?</a>
+                            </div>
+                            <div class="input-group border rounded">
+                                <span class="input-group-text border-0"><i
+                                        class="fa-solid fa-lock text-muted"></i></span>
+                                <input type="password" class="form-control border-0 px-0" name="password"
+                                    placeholder="••••••••" required autocomplete="new-password">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100 btn-lg mb-3 shadow">Sign In</button>
+                    </form>
+
+                    <!-- Forgot Password Modal Injected via Swal -->
+
+                    <div class="text-center mt-4">
+                        <small class="text-muted d-block mb-1">Need help? Contact Administrator.</small>
+                        <small class="text-muted fw-bold">Licensed to <span id="licensedToName">JUSTSALE
+                                POS</span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function showForgotPassword() {
+            const { value: email } = await Swal.fire({
+                title: 'Forgot Password',
+                input: 'email',
+                inputLabel: 'Enter your registered email address',
+                inputPlaceholder: 'e.g. john@example.com',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                confirmButtonColor: '#4361ee',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'You need to write something!'
+                    }
+                }
+            });
+
+            if (email) {
+                const res = await fetch('api/auth.php?action=forgot_password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `email=${encodeURIComponent(email)}`
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('Success', data.message, 'success');
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            }
+        }
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i>Signing in...';
+            btn.disabled = true;
+
+            const fd = new FormData(e.target);
+            const res = await fetch('api/auth.php?action=login', { method: 'POST', body: fd });
+            const data = await res.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Welcome Back!',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1000
+                }).then(() => {
+                    if (data.role === 'Cashier') {
+                        window.location.href = 'pos';
+                    } else if (data.role === 'Admin' || data.role === 'Accounts') {
+                        window.location.href = 'admin';
+                    } else {
+                        window.location.href = 'pos';
+                    }
+                });
+            } else {
+                Swal.fire('Error', data.message, 'error');
+                btn.innerHTML = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+
+        // Redirect if already logged in
+        fetch('api/auth.php?action=me').then(r => r.json()).then(data => {
+            if (data.success && data.user) {
+                if (data.user.role === 'Cashier') window.location.href = 'pos';
+                else window.location.href = 'admin';
+            }
+        });
+
+        // Load System Settings (Logo & Company Name)
+        fetch('api/settings.php?action=get').then(r => r.json()).then(data => {
+            if (data.success && data.data) {
+                const s = data.data;
+                const companyName = s.company_name || 'JUSTSALE POS';
+                document.getElementById('licensedToName').innerText = companyName;
+
+                if (s.company_logo) {
+                    const logoImg = document.getElementById('loginLogo');
+                    logoImg.src = s.company_logo;
+                    logoImg.classList.remove('d-none');
+                    document.getElementById('loginBrandText').classList.add('d-none');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

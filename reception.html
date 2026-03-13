@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goods Reception (GRN) | JUSTSALE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-main-nav">
+        <div class="d-flex align-items-center">
+            <div class="brand"><i class="fa-solid fa-cash-register me-2"></i>JUSTSALE</div>
+            <div class="nav-links-container">
+                <a href="admin" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="pos" target="_blank" class="nav-link"><i class="fa-solid fa-cash-register"></i> POS
+                    Terminal</a>
+                <div class="dropdown nav-link-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-solid fa-boxes-stacked"></i> Inventory
+                    </a>
+                    <ul class="dropdown-menu shadow-sm">
+                        <li><a class="dropdown-item" href="inventory"><i class="fa-solid fa-boxes-stacked"></i> Catalog
+                                &
+                                Movements</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="receive-goods"><i class="fa-solid fa-file-invoice"></i> PO
+                                Request</a></li>
+                        <li><a class="dropdown-item active" href="reception"><i class="fa-solid fa-truck-pickup"></i>
+                                Goods
+                                Reception</a></li>
+                        <li><a class="dropdown-item" href="purchases"><i class="fa-solid fa-file-invoice-dollar"></i>
+                                Purchase Orders</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="suppliers"><i class="fa-solid fa-handshake"></i>
+                                Suppliers</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="nav-user-controls" id="current-user"></div>
+    </nav>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="m-0 text-secondary fw-bold"><i class="fa-solid fa-truck-pickup me-2 text-warning"></i>Receive
+                Delivered Goods</h4>
+            <a href="purchases" class="btn btn-light border shadow-sm px-4">
+                <i class="fa-solid fa-arrow-left me-2"></i> Back to POs
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <!-- Order Lookup -->
+            <div class="col-md-12">
+                <div class="card card-elegant border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="row align-items-end g-3">
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted mb-1">Search for Purchase Order (PO #)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i
+                                            class="fa-solid fa-file-contract"></i></span>
+                                    <input type="text" class="form-control border-start-0 px-3" id="poSearch"
+                                        placeholder="Enter PO Number (e.g. 5)...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-warning w-100 fw-bold" onclick="lookupPO()"><i
+                                        class="fa-solid fa-magnifying-glass me-2"></i>Find PO</button>
+                            </div>
+                            <div class="col-md-6" id="poSummary" style="display:none;">
+                                <div
+                                    class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="small text-muted fw-bold">SUPPLIER</div>
+                                        <h5 class="m-0 fw-black text-dark" id="dispSupplier">...</h5>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="small text-muted fw-bold">TOTAL REQUESTED</div>
+                                        <h5 class="m-0 fw-black text-primary" id="dispTotal">...</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12" id="receptionSection" style="display:none;">
+                <div class="card card-elegant border-0 shadow-sm">
+                    <div class="card-header bg-dark text-white p-3">
+                        <h5 class="m-0 fw-bold"><i class="fa-solid fa-clipboard-check me-2"></i>Item Reception Form</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted small mb-4 italic">Confirm the quantity delivered for each item. You may
+                            receive partial shipments.</p>
+
+                        <div class="table-responsive border rounded-4 mb-4">
+                            <table class="table table-hover mb-0" id="receptionTable" style="width:100%">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4 py-3">Product Name</th>
+                                        <th class="text-center py-3">PO Quantity</th>
+                                        <th class="text-center py-3">Prev. Received</th>
+                                        <th class="text-center py-3">Balance Due</th>
+                                        <th class="py-3" style="width: 200px;">Current Arrival (Qty)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemBody">
+                                    <!-- Injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row g-4 mt-4">
+                            <div class="col-md-8">
+                                <label class="form-label small fw-bold text-muted">Reception Notes (Optional)</label>
+                                <textarea id="notes" class="form-control border p-3" rows="3"
+                                    placeholder="Enter details about delivery conditions, shortages, or discrepancies..."></textarea>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button class="btn btn-success p-4 w-100 fw-black shadow-lg" id="submitReceptionBtn">
+                                    <i class="fa-solid fa-cloud-upload-alt me-2"></i> RECORD DELIVERY & UPDATE STOCK
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer text-center">
+        <div class="container">
+            <span class="text-muted small">JUSTSALE POS System | Powered by <a href="http://franklin.co.tz/justsalePOS" target="_blank" class="text-primary fw-bold text-decoration-none">Franklin</a></span>
+            <span class="version-tag">Ver: 2.0.4</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/reception.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+vendor/
+composer.phar
+composer.lock
+.env
+uploads/*
+!uploads/.gitkeep
+api/db.php
+assets/img/logo/*
+!assets/img/logo/.gitkeep
+*.log
+.vscode/
+.idea/
+*.pdf
+*.xls
+*.xlsx
