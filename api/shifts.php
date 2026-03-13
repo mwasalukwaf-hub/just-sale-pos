@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $shift = $stmt->fetch();
             if ($shift) {
                 // Calculate expected cash in drawer
-                $cashStmt = $pdo->prepare("SELECT SUM(total_amount) as cash_total FROM sales WHERE shift_id = ? AND payment_method = 'Cash'");
+                $cashStmt = $pdo->prepare("SELECT SUM(total_amount) as cash_total FROM sales WHERE shift_id = ? AND payment_method = 'CASH'");
                 $cashStmt->execute([$shift['id']]);
                 $cashSales = $cashStmt->fetch()['cash_total'] ?? 0;
                 

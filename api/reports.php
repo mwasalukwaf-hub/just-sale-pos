@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     } elseif ($action === 'shift_report') {
         $stmt = $pdo->query("SELECT sh.*, u.username, 
-                            (SELECT SUM(amount_paid - change_amount) FROM sales sa WHERE sa.shift_id = sh.id AND payment_method='Cash') as expected_cash,
+                            (SELECT SUM(amount_paid - change_amount) FROM sales sa WHERE sa.shift_id = sh.id AND payment_method='CASH') as expected_cash,
                             (SELECT SUM(total_amount) FROM sales sa WHERE sa.shift_id = sh.id) as expected_revenue 
                             FROM shifts sh JOIN users u ON sh.user_id = u.id ORDER BY sh.opening_time DESC LIMIT 50");
         echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);

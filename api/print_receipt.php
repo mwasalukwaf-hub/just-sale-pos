@@ -99,7 +99,7 @@ if (!empty($settings['receipt_header'])) {
                 <?php echo $currency . ' ' . format_amount($total); ?>
             </td>
         </tr>
-        <?php if ($sale['payment_method'] === 'Cash'): ?>
+        <?php if ($sale['payment_method'] === 'CASH'): ?>
         <tr>
             <td style="padding: 5px 0; color: #666;">Cash Tendered</td>
             <td class="text-right text-muted"><?php echo format_amount($sale['amount_paid']); ?></td>
@@ -134,6 +134,20 @@ if (isset($_GET['download']) && $_GET['download'] == 'excel') {
     if (isset($return_content) && $return_content) {
         $pdf_output = export_to_pdf($html, $fileName . ".pdf", 'portrait', false);
     } else {
-        export_to_pdf($html, $fileName . ".pdf");
+        $pdf_content = export_to_pdf($html, $fileName . ".pdf", 'portrait', false);
+        
+        if (!empty($pdf_content)) {
+            // Save copy to receipts folder
+            $savePath = __DIR__ . "/../receipts/" . $fileName . ".pdf";
+            if (!is_dir(__DIR__ . "/../receipts/")) {
+                mkdir(__DIR__ . "/../receipts/", 0777, true);
+            }
+            file_put_contents($savePath, $pdf_content);
+        }
+        
+        // Output to browser
+        header("Content-Type: application/pdf");
+        header("Content-Disposition: inline; filename=\"$fileName.pdf\"");
+        echo $pdf_content;
     }
 }

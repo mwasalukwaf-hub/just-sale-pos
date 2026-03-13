@@ -68,6 +68,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             dropdown.style.display = 'none';
         }
     });
+
+    // Auto-fullscreen on first interaction
+    document.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {
+                // Ignore errors
+            });
+        }
+    }, { once: true });
 });
 
 function saveState() {
@@ -295,7 +304,16 @@ function closeShiftModal() {
 }
 
 function calculateShiftDifference() {
-    const actual = parseFloat(document.getElementById('actualCashInput').value) || 0;
+    const input = document.getElementById('actualCashInput');
+    let raw = input.value.replace(/[^0-9]/g, '');
+    
+    if (raw) {
+        input.value = parseInt(raw).toLocaleString('en-US');
+    } else {
+        input.value = '';
+    }
+
+    const actual = parseFloat(raw) || 0;
     const diff = actual - expectedCashAmount;
     
     const diffWrap = document.getElementById('shiftDifferenceWrap');
@@ -338,6 +356,9 @@ async function openShift(e) {
 async function closeShift(e) {
     e.preventDefault();
     const fd = new FormData(e.target);
+    const balance = fd.get('closing_balance').replace(/,/g, '');
+    fd.set('closing_balance', balance);
+
     const res = await fetch('api/shifts.php?action=close', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.success) {
@@ -644,7 +665,10 @@ function appendNumber(n) {
 
 function clearNumber() {
     const input = document.getElementById('amountTendered');
-    input.value = '';
+    let val = input.value.replace(/[^0-9]/g, '');
+    if (val.length > 0) {
+        input.value = val.substring(0, val.length - 1);
+    }
     calculateChange();
 }
 
@@ -688,22 +712,28 @@ async function processPayment() {
         items: currentQueue.cart
     };
 
-    const res = await fetch('api/sales.php?action=checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
+    try {
+        const res = await fetch('api/sales.php?action=checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-    const data = await res.json();
-    btn.disabled = false;
-    btn.innerText = 'Confirm Payment & Print Receipts';
+        const data = await res.json();
+        btn.disabled = false;
+        btn.innerText = 'CONFIRM PAYMENT';
 
-    if (data.success) {
-        showToast('Payment successful!', 'success');
-        // Show receipt format selection modal instead of auto-previewing A4
-        showReceiptOptions(data.sale_id);
-    } else {
-        showToast(data.message || 'Payment failed', 'error');
+        if (data.success) {
+            showToast('Payment successful!', 'success');
+            showReceiptOptions(data.sale_id);
+        } else {
+            Swal.fire('Payment Failed', data.message || 'Error processing transaction', 'error');
+        }
+    } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'CONFIRM PAYMENT';
+        console.error("Checkout Error:", err);
+        Swal.fire('Server Error', 'Could not complete the transaction. Check your connection.', 'error');
     }
 }
 
@@ -737,6 +767,7 @@ function showShiftSales() {
                             <tr>
                                 <td class="ps-4 fw-bold text-primary">#${s.id}</td>
                                 <td class="small">${new Date(s.sale_date).toLocaleTimeString()}</td>
+                                <td class="small"><span class="badge bg-light text-dark border">${s.payment_method}</span></td>
                                 <td class="small">${s.customer_name || '<span class="text-muted">Walk-in</span>'}</td>
                                 <td class="text-end pe-4 fw-bold">${formatNumber(s.total_amount)}</td>
                             </tr>
@@ -747,6 +778,16 @@ function showShiftSales() {
                     }
                     
                     document.getElementById('shiftSalesTotal').textContent = formatNumber(totalAmount);
+                    
+                    // Populate Reconciliation cards
+                    const opening = parseFloat(data.opening_balance) || 0;
+                    const cashSales = parseFloat(data.cash_total) || 0;
+                    const expectedTotal = opening + cashSales;
+
+                    document.getElementById('shiftHistoryOpening').textContent = formatNumber(opening);
+                    document.getElementById('shiftHistoryTotalAll').textContent = formatNumber(totalAmount);
+                    document.getElementById('shiftHistoryTotalCash').textContent = formatNumber(cashSales);
+                    document.getElementById('shiftHistoryExpected').textContent = formatNumber(expectedTotal);
                 }
                 
                 // Initialize modern DataTable (Basic without export plugins)
@@ -764,11 +805,11 @@ function showShiftSales() {
                             return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
                         };
 
-                        const total = api.column(3, { page: 'current' }).data().reduce(function (a, b) {
+                        const total = api.column(4, { page: 'current' }).data().reduce(function (a, b) {
                             return intVal(a) + intVal(b);
                         }, 0);
 
-                        $(api.column(3).footer()).html(formatNumber(total));
+                        $(api.column(4).footer()).html(formatNumber(total));
                     }
                 });
                 
@@ -812,7 +853,7 @@ function showReceiptOptions(saleId) {
     const checkoutInst = bootstrap.Modal.getInstance(checkoutEl);
     if (checkoutInst) checkoutInst.hide();
 
-    // 2. Clear current queue for next sale in background
+    // 2. Clear current queue for next sale immediately
     if (queues.length > 1) {
         removeQueue(activeQueueIndex);
     } else {
@@ -825,21 +866,8 @@ function showReceiptOptions(saleId) {
     }
     loadProducts(); // Refresh stock
 
-    // 3. Prepare iframe in background just in case A4 is selected
-    const iframe = document.getElementById('receiptIframe');
-    if (iframe) {
-        iframe.src = `api/print_receipt.php?id=${saleId}`;
-    }
-
-    // 4. Show the smaller Receipt Options modal Let the cashier decide what to print.
-    setTimeout(() => {
-        const receiptModalEl = document.getElementById('receiptModal');
-        let receiptInst = bootstrap.Modal.getInstance(receiptModalEl);
-        if (!receiptInst) {
-            receiptInst = new bootstrap.Modal(receiptModalEl);
-        }
-        receiptInst.show();
-    }, 300);
+    // 3. Directly trigger Thermal Print
+    printReceipt('thermal');
 }
 
 function sendToCustomerEmail() {
@@ -1053,29 +1081,46 @@ async function printReceipt(type) {
         `;
     }
 
-    const printWin = window.open('', '', 'width=800,height=900');
-    printWin.document.write(`
+    // Use hidden iframe for printing to avoid window focus disruptions that break fullscreen
+    let printIframe = document.getElementById('silentPrintIframe');
+    if (!printIframe) {
+        printIframe = document.createElement('iframe');
+        printIframe.id = 'silentPrintIframe';
+        printIframe.style.position = 'fixed';
+        printIframe.style.right = '0';
+        printIframe.style.bottom = '0';
+        printIframe.style.width = '0';
+        printIframe.style.height = '0';
+        printIframe.style.border = '0';
+        document.body.appendChild(printIframe);
+    }
+
+    const doc = printIframe.contentWindow.document;
+    doc.open();
+    doc.write(`
         <html>
         <head>
             <title>Print Receipt</title>
             <style>
                 @page { margin: 0; }
+                body { margin: 0; padding: 10px; font-family: sans-serif; }
                 @media print {
-                    body { margin: 0; padding: 10px; }
                     header, footer { display: none !important; }
                 }
             </style>
         </head>
-        <body onload="window.focus();">
+        <body>
             ${html}
+            <script>
+                window.onload = function() {
+                    window.print();
+                };
+            </script>
         </body>
         </html>
     `);
-    printWin.document.close();
-    printWin.focus();
-    // small delay for resources
-    setTimeout(() => {
-        printWin.print();
-        printWin.close();
-    }, 500);
+    doc.close();
+
+    // Immediately return focus to the parent to help keep the print dialog "behind" or skipped
+    window.focus();
 }

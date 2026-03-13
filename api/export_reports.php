@@ -214,7 +214,7 @@ if ($report === 'sales') {
 
 } elseif ($report === 'shifts-all') {
     $stmt = $pdo->query("SELECT sh.*, u.username, 
-                        (SELECT SUM(amount_paid - change_amount) FROM sales sa WHERE sa.shift_id = sh.id AND payment_method='Cash') as expected_cash
+                        (SELECT SUM(amount_paid - change_amount) FROM sales sa WHERE sa.shift_id = sh.id AND payment_method='CASH') as expected_cash
                         FROM shifts sh JOIN users u ON sh.user_id = u.id ORDER BY sh.opening_time DESC LIMIT 50");
     $data = $stmt->fetchAll();
 

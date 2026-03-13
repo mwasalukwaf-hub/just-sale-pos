@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `sales` (
   `user_id` int(11) NOT NULL,
   `customer_id` int(11) DEFAULT NULL,
   `total_amount` decimal(12,2) NOT NULL,
-  `payment_method` enum('Cash','Card','Mobile') DEFAULT 'Cash',
+  `payment_method` enum('CASH','CARD','LIPA KWA SIMU') DEFAULT 'CASH',
   `amount_paid` decimal(12,2) NOT NULL,
   `change_amount` decimal(12,2) NOT NULL DEFAULT 0.00,
   `sale_date` timestamp DEFAULT current_timestamp(),
@@ -183,6 +183,21 @@ CREATE TABLE IF NOT EXISTS `reception_items` (
   CONSTRAINT `reception_items_ibfk_1` FOREIGN KEY (`reception_id`) REFERENCES `receptions` (`id`) ON DELETE CASCADE,
   CONSTRAINT `reception_items_ibfk_2` FOREIGN KEY (`purchase_item_id`) REFERENCES `purchase_items` (`id`) ON DELETE CASCADE,
   CONSTRAINT `reception_items_ibfk_3` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `stock_adjustments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` int(11) NOT NULL,
+  `adjustment_type` enum('In','Out','Damage','Loss','Set Stock') NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `reason` text DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `adjustment_date` timestamp DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `stock_adjustments_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `stock_adjustments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 6. System Configurations

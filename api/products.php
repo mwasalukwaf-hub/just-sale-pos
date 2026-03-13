@@ -45,6 +45,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         } else {
             echo json_encode(['success' => false, 'message' => 'Category name required']);
         }
+    } elseif ($action === 'update_category') {
+        $id = $_POST['id'] ?? null;
+        $name = $_POST['name'] ?? '';
+        if ($id && $name) {
+            $stmt = $pdo->prepare("UPDATE categories SET name=? WHERE id=?");
+            $stmt->execute([$name, $id]);
+            echo json_encode(['success' => true, 'message' => 'Category updated']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'ID and Name required']);
+        }
     } elseif ($action === 'delete_category') {
         $id = $_POST['id'] ?? null;
         if ($id) {
@@ -61,6 +71,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             echo json_encode(['success' => true, 'message' => 'Unit created']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Name and Short Name required']);
+        }
+    } elseif ($action === 'update_unit') {
+        $id = $_POST['id'] ?? null;
+        $name = $_POST['name'] ?? '';
+        $short = $_POST['short_name'] ?? '';
+        if ($id && $name && $short) {
+            $stmt = $pdo->prepare("UPDATE units SET name=?, short_name=? WHERE id=?");
+            $stmt->execute([$name, $short, $id]);
+            echo json_encode(['success' => true, 'message' => 'Unit updated']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'ID, Name and Short Name required']);
         }
     } elseif ($action === 'delete_unit') {
         $id = $_POST['id'] ?? null;
@@ -147,6 +168,91 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $stmt->execute([$id]);
             echo json_encode(['success' => true, 'message' => 'Product deleted']);
         }
+    } elseif ($action === 'import') {
+        if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['success' => false, 'message' => 'No file uploaded or upload error.']);
+            exit;
+        }
+
+        $file = $_FILES['csv_file']['tmp_name'];
+        $handle = fopen($file, 'r');
+        if ($handle === false) {
+            echo json_encode(['success' => false, 'message' => 'Could not open file.']);
+            exit;
+        }
+
+        // Optional: Skip header row if needed. Let's assume there's a header.
+        $header = fgetcsv($handle); 
+
+        $total = 0;
+        $success = 0;
+        $failed = 0;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($row) < 3) continue; // Skip empty rows
+
+            $total++;
+            $name = trim($row[0]);
+            $sku = trim($row[1] ?? '');
+            $barcode = trim($row[2] ?? NULL);
+            $catName = trim($row[3] ?? '');
+            $unitName = trim($row[4] ?? '');
+            $cost = floatval(str_replace(',', '', $row[5] ?? 0));
+            $selling = floatval(str_replace(',', '', $row[6] ?? 0));
+            $minStock = intval($row[7] ?? 5);
+
+            if (empty($name)) {
+                $failed++;
+                continue;
+            }
+
+            try {
+                $pdo->beginTransaction();
+
+                // 1. Resolve Category
+                $categoryId = null;
+                if ($catName) {
+                    $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
+                    $stmt->execute([$catName]);
+                    $categoryId = $stmt->fetchColumn();
+                    if (!$categoryId) {
+                        $pdo->prepare("INSERT INTO categories (name) VALUES (?)")->execute([$catName]);
+                        $categoryId = $pdo->lastInsertId();
+                    }
+                }
+
+                // 2. Resolve Unit
+                $unitId = null;
+                if ($unitName) {
+                    $stmt = $pdo->prepare("SELECT id FROM units WHERE name = ? OR short_name = ?");
+                    $stmt->execute([$unitName, $unitName]);
+                    $unitId = $stmt->fetchColumn();
+                    if (!$unitId) {
+                        $short = substr($unitName, 0, 3);
+                        $pdo->prepare("INSERT INTO units (name, short_name) VALUES (?, ?)")->execute([$unitName, $short]);
+                        $unitId = $pdo->lastInsertId();
+                    }
+                }
+
+                // 3. Insert Product
+                $stmt = $pdo->prepare("INSERT INTO products (name, sku, barcode, category_id, unit_id, cost_price, selling_price, min_stock_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$name, $sku, $barcode ?: NULL, $categoryId, $unitId, $cost, $selling, $minStock]);
+
+                $pdo->commit();
+                $success++;
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                $failed++;
+            }
+        }
+        fclose($handle);
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Import completed: $success successful, $failed failed.",
+            'details' => ['total' => $total, 'success' => $success, 'failed' => $failed]
+        ]);
+        exit;
     } else {
         echo json_encode(['success' => false, 'message' => 'Unknown POST action']);
     }

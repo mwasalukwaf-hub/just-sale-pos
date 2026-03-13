@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('categoryForm').addEventListener('submit', saveCategory);
     document.getElementById('unitForm').addEventListener('submit', saveUnit);
     document.getElementById('adjustmentForm').addEventListener('submit', applyAdjustment);
+    document.getElementById('importForm').addEventListener('submit', importProducts);
 
     // Search & Filter
     document.getElementById('inventorySearch').addEventListener('input', filterCatalog);
@@ -266,9 +267,14 @@ function renderCategories() {
         item.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
         item.innerHTML = `
             <span class="fw-bold px-2">${c.name}</span>
-            <button class="btn btn-link text-danger p-0" onclick="deleteCategory(${c.id})">
-                <i class="fa-solid fa-times-circle"></i>
-            </button>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-link text-primary p-0 me-2" onclick="editCategory(${c.id})">
+                    <i class="fa-solid fa-edit"></i>
+                </button>
+                <button class="btn btn-link text-danger p-0" onclick="deleteCategory(${c.id})">
+                    <i class="fa-solid fa-times-circle"></i>
+                </button>
+            </div>
         `;
         list.appendChild(item);
     });
@@ -283,9 +289,14 @@ function renderUnits() {
         item.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
         item.innerHTML = `
             <span class="fw-bold px-2">${u.name} <small class="text-muted">(${u.short_name})</small></span>
-            <button class="btn btn-link text-danger p-0" onclick="deleteUnit(${u.id})">
-                <i class="fa-solid fa-times-circle"></i>
-            </button>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-link text-primary p-0 me-2" onclick="editUnit(${u.id})">
+                    <i class="fa-solid fa-edit"></i>
+                </button>
+                <button class="btn btn-link text-danger p-0" onclick="deleteUnit(${u.id})">
+                    <i class="fa-solid fa-times-circle"></i>
+                </button>
+            </div>
         `;
         list.appendChild(item);
     });
@@ -473,16 +484,25 @@ async function saveProduct(e) {
 
 async function saveCategory(e) {
     e.preventDefault();
+    const id = document.getElementById('category_id').value;
+    const action = id ? 'update_category' : 'create_category';
     const fd = new FormData(e.target);
-    const res = await fetch('api/products.php?action=create_category', { method: 'POST', body: fd });
+    const res = await fetch(`api/products.php?action=${action}`, { method: 'POST', body: fd });
     const data = await res.json();
     if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
         e.target.reset();
+        document.getElementById('category_id').value = '';
         loadInventoryData();
         showToast(data.message);
     }
 }
+
+window.editCategory = (id) => {
+    const c = categoriesData.find(x => x.id == id);
+    if (!c) return;
+    document.getElementById('category_id').value = c.id;
+    document.getElementById('category_name').value = c.name;
+};
 
 async function deleteCategory(id) {
     const { isConfirmed } = await Swal.fire({ title: 'Remove Category?', showCancelButton: true });
@@ -496,16 +516,26 @@ async function deleteCategory(id) {
 
 async function saveUnit(e) {
     e.preventDefault();
+    const id = document.getElementById('unit_id').value;
+    const action = id ? 'update_unit' : 'create_unit';
     const fd = new FormData(e.target);
-    const res = await fetch('api/products.php?action=create_unit', { method: 'POST', body: fd });
+    const res = await fetch(`api/products.php?action=${action}`, { method: 'POST', body: fd });
     const data = await res.json();
     if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById('unitModal')).hide();
         e.target.reset();
+        document.getElementById('unit_id').value = '';
         loadInventoryData();
         showToast(data.message);
     }
 }
+
+window.editUnit = (id) => {
+    const u = unitsData.find(x => x.id == id);
+    if (!u) return;
+    document.getElementById('unit_id').value = u.id;
+    document.getElementById('unit_name').value = u.name;
+    document.getElementById('unit_short_name').value = u.short_name;
+};
 
 async function deleteUnit(id) {
     const { isConfirmed } = await Swal.fire({ title: 'Remove Unit?', showCancelButton: true });
@@ -567,4 +597,35 @@ function formatCurrency(num) {
     return `${code} ${formatted}`;
 }
 
+async function importProducts(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnImport');
+    const resultDiv = document.getElementById('importResult');
+    const fd = new FormData(e.target);
 
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+
+    try {
+        const res = await fetch('api/products.php?action=import', { method: 'POST', body: fd });
+        const data = await res.json();
+
+        if (data.success) {
+            resultDiv.classList.remove('d-none');
+            document.getElementById('import-total').innerText = data.details.total;
+            document.getElementById('import-success').innerText = data.details.success;
+            document.getElementById('import-failed').innerText = data.details.failed;
+
+            Swal.fire('Success', data.message, 'success').then(() => {
+                loadInventoryData();
+            });
+        } else {
+            Swal.fire('Error', data.message, 'error');
+        }
+    } catch (err) {
+        Swal.fire('Error', 'Import failed: Server communication error', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-1"></i> Start Import';
+    }
+}

@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'checkout') {
     }
 
     $shift_id = $data['shift_id'] ?? null;
-    $payment_method = $data['payment_method'] ?? 'Cash';
+    $payment_method = $data['payment_method'] ?? 'CASH';
     $amount_paid = $data['amount_paid'] ?? 0;
     $customer_id = $data['customer_id'] ?? null;
     
@@ -50,12 +50,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'checkout') {
         $stockStmt = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?");
         
         foreach ($data['items'] as $item) {
+            // Verify product exists and get its current stock info
+            $checkStmt = $pdo->prepare("SELECT id, stock_quantity FROM products WHERE id = ?");
+            $checkStmt->execute([$item['id']]);
+            $pData = $checkStmt->fetch();
+
+            if (!$pData) {
+                throw new Exception("Product ID " . $item['id'] . " (".$item['name'].") no longer exists in the database. Please clear your cart and refresh products.");
+            }
+
             $subtotal = $item['quantity'] * $item['price'];
             $itemStmt->execute([$sale_id, $item['id'], $item['quantity'], $item['price'], $subtotal]);
             $stockStmt->execute([$item['quantity'], $item['id']]);
         }
         
         $pdo->commit();
+
+        // --- NEW: AUTO-SAVE RECEIPT PDF TO SERVER ---
+        try {
+            // Trick print_receipt.php into generating PDF without outputting to browser
+            $_GET['id'] = $sale_id;
+            $return_content = true;
+            
+            ob_start();
+            include 'print_receipt.php'; 
+            $pdf_content = $pdf_output ?? null;
+            ob_end_clean();
+            
+            if ($pdf_content) {
+                $fileName = "Receipt_#{$sale_id}_" . date('Ymd_His') . ".pdf";
+                $savePath = __DIR__ . "/../receipts/" . $fileName;
+                if (!is_dir(__DIR__ . "/../receipts/")) {
+                    mkdir(__DIR__ . "/../receipts/", 0777, true);
+                }
+                file_put_contents($savePath, $pdf_content);
+            }
+        } catch (Throwable $e) {
+            // Log error but don't fail the sale response
+            error_log("Failed to auto-archive receipt for Sale #$sale_id: " . $e->getMessage());
+        }
+        // --- END AUTO-SAVE ---
+
         echo json_encode([
             'success' => true, 
             'message' => 'Sale completed', 
@@ -63,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'checkout') {
             'change' => $change_amount
         ]);
     } catch (Exception $e) {
-        $pdo->rollBack();
+        if ($pdo->inTransaction()) $pdo->rollBack();
         echo json_encode(['success' => false, 'message' => 'Error processing sale: ' . $e->getMessage()]);
     }
 
@@ -105,7 +140,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'checkout') {
     $stmt->execute([$shift_id]);
     $sales = $stmt->fetchAll();
 
-    echo json_encode(['success' => true, 'data' => $sales]);
+    // Fetch shift specific info for reconciliation
+    $shiftStmt = $pdo->prepare("SELECT opening_balance FROM shifts WHERE id = ?");
+    $shiftStmt->execute([$shift_id]);
+    $shiftInfo = $shiftStmt->fetch();
+
+    $cashStmt = $pdo->prepare("SELECT SUM(total_amount) as cash_total FROM sales WHERE shift_id = ? AND payment_method = 'CASH'");
+    $cashStmt->execute([$shift_id]);
+    $cashTotal = $cashStmt->fetch()['cash_total'] ?? 0;
+
+    echo json_encode([
+        'success' => true, 
+        'data' => $sales, 
+        'opening_balance' => $shiftInfo['opening_balance'] ?? 0,
+        'cash_total' => $cashTotal
+    ]);
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'email_receipt') {
     $raw = file_get_contents('php://input');

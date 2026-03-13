@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $end_date = $_GET['end_date'] ?? '';
 
         $sql = "SELECT * FROM (
-            (SELECT r.received_date as date, 'Reception' as type, CONCAT('GRN-', r.id, ' (PO-', p.id, ') - ', s.name) as identifier, ri.quantity_received as qty, pr.name as product_name, u.username
+            (SELECT r.received_at as date, 'Reception' as type, CONCAT('GRN-', r.id, ' (PO-', p.id, ') - ', s.name) as identifier, ri.quantity_received as qty, pr.name as product_name, u.username
              FROM receptions r
              JOIN purchases p ON r.purchase_id = p.id
              JOIN suppliers s ON p.supplier_id = s.id
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              JOIN products pr ON ri.product_id = pr.id
              JOIN users u ON r.received_by = u.id)
             UNION ALL
-            (SELECT r.received_date as date, 'Reversal' as type, CONCAT('REVERSED PO-', p.id, ' (GRN-', r.id, ') - ', s.name) as identifier, -ri.quantity_received as qty, pr.name as product_name, u.username
+            (SELECT r.received_at as date, 'Reversal' as type, CONCAT('REVERSED PO-', p.id, ' (GRN-', r.id, ') - ', s.name) as identifier, -ri.quantity_received as qty, pr.name as product_name, u.username
              FROM receptions r
              JOIN purchases p ON r.purchase_id = p.id
              JOIN suppliers s ON p.supplier_id = s.id

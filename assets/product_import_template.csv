@@ -1,0 +1,4 @@
+Name,SKU,Barcode,Category Name,Unit Name,Cost Price,Selling Price,Min Stock
+"Example Product","PROD-001","123456789","Electronics","pcs",15000,25000,5
+"Fresh Apples","SKU-APL-02","","Groceries","kg",2000,3500,10
+"Cotton T-Shirt","TSHIRT-BLUE","","Clothing","pcs",5000,12000,3
