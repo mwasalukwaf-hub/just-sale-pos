@@ -6,7 +6,7 @@ require_once 'licensing_client.php';
 
 // Allow certain actions to pass through (like activation itself)
 $current_file = basename($_SERVER['PHP_SELF']);
-$allowed_files = ['activate.php', 'auth.php']; // auth.php needed for login
+$allowed_files = ['activate.php', 'auth.php', 'installer.php']; 
 
 if (!in_array($current_file, $allowed_files)) {
     if (!LicensingClient::checkLocalLicense()) {

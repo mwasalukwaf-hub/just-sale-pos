@@ -1,6 +1,5 @@
 <?php
 session_start();
-require_once 'db.php';
 require_once '../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -8,6 +7,13 @@ use PHPMailer\PHPMailer\Exception;
 
 header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';
+
+if ($action === 'check_install') {
+    echo json_encode(['installed' => file_exists('../.installed')]);
+    exit;
+}
+
+require_once 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'login') {
     $username = $_POST['username'] ?? '';

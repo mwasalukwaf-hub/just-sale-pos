@@ -1,6 +1,18 @@
 // assets/js/app.js
 
 async function checkAuth(requiredRole = null) {
+    // --- INSTALLATION CHECK ---
+    const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+    if (currentPage !== 'install') {
+        const installRes = await fetch('api/auth.php?action=check_install');
+        const installData = await installRes.json();
+        if (!installData.installed) {
+            window.location.href = 'install';
+            return null;
+        }
+    }
+    // -------------------------
+
     try {
         const response = await fetch('api/auth.php?action=me');
         const data = await response.json();
@@ -36,6 +48,25 @@ async function checkAuth(requiredRole = null) {
                 return null;
             }
 
+            // Load System Settings (Logo & Company Name)
+            fetch('api/settings.php?action=get').then(r => r.json()).then(data => {
+                if (data.success && data.data) {
+                    const s = data.data;
+                    const companyName = s.company_name || 'JUSTSALE POS';
+                    const el = document.getElementById('licensedToName');
+                    if (el) el.innerText = companyName;
+
+                    if (s.company_logo) {
+                        const logoImg = document.getElementById('loginLogo');
+                        if (logoImg) {
+                            logoImg.src = s.company_logo;
+                            logoImg.classList.remove('d-none');
+                            const brandText = document.getElementById('loginBrandText');
+                            if (brandText) brandText.classList.add('d-none');
+                        }
+                    }
+                }
+            });
             // Hide restricted navigation elements for cashiers
             document.querySelectorAll('.nav-link').forEach(link => {
                 const href = link.getAttribute('href');
