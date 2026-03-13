@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Activation | JUSTSALE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .activation-card {
+            max-width: 450px;
+            width: 100%;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .brand-activation {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #4361ee;
+            margin-bottom: 2rem;
+        }
+        .license-input {
+            text-transform: uppercase;
+            font-family: monospace;
+            letter-spacing: 2px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card activation-card p-4 text-center">
+    <div class="card-body">
+        <div class="brand-activation"><i class="fa-solid fa-cash-register me-2"></i>JUSTSALE</div>
+        <h4 class="fw-bold mb-3">Activate Your Software</h4>
+        <p class="text-muted mb-4 small">To continue using JUSTSALE POS, please enter your genuine license key below.</p>
+        
+        <form id="activationForm">
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-muted float-start">License Key</label>
+                <input type="text" id="licenseKey" name="license_key" class="form-control form-control-lg license-input" 
+                       placeholder="XXXX-XXXX-XXXX-XXXX" required>
+            </div>
+            
+            <div id="statusMessage" class="alert d-none mb-3 py-2 small"></div>
+
+            <button type="submit" id="btnActivate" class="btn btn-primary btn-lg w-100 shadow-sm fw-bold">
+                <i class="fa-solid fa-key me-2"></i> Activate Now
+            </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top">
+            <div class="text-muted small">Your unique ID for this installation:</div>
+            <code class="small d-block mt-1" id="disp_hwid">Generating ID...</code>
+        </div>
+        
+        <div class="mt-3">
+            <a href="https://justsalepos.franklin.co.tz" target="_blank" class="text-decoration-none small fw-bold">
+                Need a license key? Contact Sales
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Load HWID
+        try {
+            const res = await fetch('api/activate.php?action=get_hwid');
+            const data = await res.json();
+            document.getElementById('disp_hwid').innerText = data.hwid;
+        } catch(e) {}
+
+        // Handle Activation form
+        const form = document.getElementById('activationForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const key = document.getElementById('licenseKey').value;
+            const btn = document.getElementById('btnActivate');
+            const msg = document.getElementById('statusMessage');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Activating...';
+            msg.classList.add('d-none');
+
+            try {
+                const res = await fetch('api/activate.php?action=activate', {
+                    method: 'POST',
+                    body: JSON.stringify({ license_key: key })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Software successfully activated.',
+                        icon: 'success'
+                    }).then(() => {
+                        window.location.href = 'admin';
+                    });
+                } else {
+                    msg.classList.remove('d-none');
+                    msg.classList.add('alert-danger');
+                    msg.innerText = data.message;
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-key me-2"></i> Activate Now';
+                }
+            } catch (err) {
+                Swal.fire('Error', 'Technical communication failure. Check your internet connection.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-key me-2"></i> Activate Now';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

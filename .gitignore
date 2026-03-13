@@ -13,3 +13,7 @@ assets/img/logo/*
 *.pdf
 *.xls
 *.xlsx
+
+# Licensing
+.license.lock
+/server_files/

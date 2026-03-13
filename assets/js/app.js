@@ -10,11 +10,24 @@ async function checkAuth(requiredRole = null) {
             return null;
         }
 
+        // --- LICENSING GATEKEEPER ---
+        // Verify license is active for this installation
+        const licenseRes = await fetch('api/activate.php?action=check');
+        const licenseData = await licenseRes.json();
+        
+        let currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+        if (!currentPage || currentPage === '') currentPage = 'admin'; // Default fallback
+        
+        if (!licenseData.isLicensed && currentPage !== 'activate') {
+            window.location.href = 'activate';
+            return null;
+        }
+        // -----------------------------
+
         // Cashier restriction - Prioritize over general auth check
         const isCashier = data.user.role === 'Cashier';
         const currentPath = window.location.pathname;
-        const currentPage = currentPath.split('/').pop().replace('.html', '');
-
+        
         if (isCashier) {
             // Only allow pos, profile, and index (login)
             const allowedPages = ['pos', 'profile', 'index', 'login', ''];
