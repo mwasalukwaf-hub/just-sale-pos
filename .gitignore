@@ -16,3 +16,6 @@ assets/img/logo/*
 
 # Licensing
 .license.lock
+
+# Server Files (Central Server Only)
+/server_files/
