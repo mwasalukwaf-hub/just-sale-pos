@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const user = await checkAuth('Admin'); // Will redirect if not Auth or restrict depending on role inside app.js
     if (!user) return; // redirect happens in app.js
 
-    await loadCompanySettings();
+    companySettings = await getAppSettings() || { company_currency_code: '$' };
 
     // Some roles like Accounts can see reports but maybe not manage users
     if (user.role !== 'Admin') {
@@ -19,17 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initTrendChart();
 });
 
-async function loadCompanySettings() {
-    try {
-        const res = await fetch('api/settings.php?action=get');
-        const data = await res.json();
-        if (data.success) {
-            companySettings = data.data;
-        }
-    } catch (e) {
-        console.error("Failed to load settings");
-    }
-}
+// settings already loaded in DOMContentLoaded
 
 async function loadKPIs() {
     const res = await fetch('api/reports.php?action=dashboard_stats');
@@ -77,9 +67,35 @@ async function initTrendChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            const symbol = companySettings.company_currency_code || '$';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += symbol + ' ' + formatCurrency(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
             scales: {
-                y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                y: { 
+                    beginAtZero: true, 
+                    grid: { borderDash: [5, 5] },
+                    ticks: {
+                        callback: function(value) {
+                            const symbol = companySettings.company_currency_code || '$';
+                            return symbol + ' ' + formatCurrency(value);
+                        }
+                    }
+                },
                 x: { grid: { display: false } }
             }
         }
@@ -132,7 +148,7 @@ async function loadShiftReports() {
             if (actualCash !== null) {
                 disc = actualCash - expectedCash;
                 let colorClass = disc < 0 ? 'text-danger fw-bold' : (disc > 0 ? 'text-warning fw-bold' : 'text-success');
-                discHtml = `<span class="${colorClass}">${symbol} ${disc.toFixed(2)}</span>`;
+                discHtml = `<span class="${colorClass}">${symbol} ${formatCurrency(disc)}</span>`;
             }
 
             const tr = document.createElement('tr');
