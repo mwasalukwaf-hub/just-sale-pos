@@ -104,7 +104,7 @@
         <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:20px; animation: slideUp 0.3s ease; height: 80vh; display: flex; flex-direction: column;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold m-0">Select Customer</h4>
-                <button onclick="closeCustomerModal()" style="background:none; border:none; font-size:24px; color:#999;">&times;</button>
+                <button onclick="closeCustomerModal()" style="background:#f1f3f5; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057;">&times;</button>
             </div>
             
             <div class="mb-3" style="position:relative;">
@@ -127,32 +127,24 @@
         <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:25px; animation: slideUp 0.3s ease;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold m-0">New Customer</h4>
-                <button onclick="closeAddCustomerModal()" style="background:none; border:none; font-size:24px; color:#999;">&times;</button>
+                <button onclick="closeAddCustomerModal()" style="background:#f1f3f5; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057;">&times;</button>
             </div>
             
             <form id="addCustomerForm">
                 <div class="mb-3">
-                    <label class="small fw-bold text-muted mb-1 d-block">FULL NAME *</label>
-                    <input type="text" name="name" class="form-control" required style="padding:12px; border-radius:10px; background:#f8fafc; border:1px solid #eee;">
+                    <input type="text" name="name" class="form-control" placeholder="Full Customer Name *" required style="padding:15px; border-radius:12px; background:#f8fafc; border:1px solid #eee; width:100%;">
                 </div>
                 <div class="mb-3">
-                    <label class="small fw-bold text-muted mb-1 d-block">MOBILE NUMBER</label>
-                    <input type="tel" name="mobile" class="form-control" style="padding:12px; border-radius:10px; background:#f8fafc; border:1px solid #eee;">
+                    <input type="tel" name="mobile" class="form-control" placeholder="Mobile Number" style="padding:15px; border-radius:12px; background:#f8fafc; border:1px solid #eee; width:100%;">
+                </div>
+                <div class="mb-3">
+                    <input type="email" name="email" class="form-control" placeholder="Email Address" style="padding:15px; border-radius:12px; background:#f8fafc; border:1px solid #eee; width:100%;">
+                </div>
+                <div class="mb-3">
+                    <input type="text" name="tin" class="form-control" placeholder="TIN Number" style="padding:15px; border-radius:12px; background:#f8fafc; border:1px solid #eee; width:100%;">
                 </div>
                 <div class="mb-4">
-                    <label class="small fw-bold text-muted mb-1 d-block">EMAIL ADDRESS</label>
-                    <input type="email" name="email" class="form-control" style="padding:12px; border-radius:10px; background:#f8fafc; border:1px solid #eee;">
-                </div>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
-                    <div>
-                        <label class="small fw-bold text-muted mb-1 d-block">TIN NUMBER</label>
-                        <input type="text" name="tin" class="form-control" style="padding:12px; border-radius:10px; background:#f8fafc; border:1px solid #eee;">
-                    </div>
-                    <div>
-                        <label class="small fw-bold text-muted mb-1 d-block">VRN NUMBER</label>
-                        <input type="text" name="vrn" class="form-control" style="padding:12px; border-radius:10px; background:#f8fafc; border:1px solid #eee;">
-                    </div>
+                    <input type="text" name="vrn" class="form-control" placeholder="VRN Number" style="padding:15px; border-radius:12px; background:#f8fafc; border:1px solid #eee; width:100%;">
                 </div>
 
                 <button type="submit" style="width:100%; background:var(--pos-green); color:white; border:none; padding:18px; border-radius:15px; font-size:16px; font-weight:800; box-shadow: 0 5px 15px rgba(0,100,0,0.2);">
@@ -167,7 +159,7 @@
         <div class="modal-content" style="background:white; width:100%; border-radius:20px 20px 0 0; padding:20px; animation: slideUp 0.3s ease;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold m-0">Payment Method</h4>
-                <button onclick="closeCheckout()" style="background:none; border:none; font-size:24px; color:#999;">&times;</button>
+                <button onclick="closeCheckout()" style="background:#f1f3f5; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; color:#495057;">&times;</button>
             </div>
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:30px;">
