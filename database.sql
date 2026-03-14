@@ -1,5 +1,5 @@
 -- JUSTSALE POS - Ready-to-Deploy Database Schema
--- Version 2.0.4
+-- Version 2.0.5
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;

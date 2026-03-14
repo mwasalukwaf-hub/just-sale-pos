@@ -270,7 +270,7 @@
             <div class="col-lg-4 text-lg-end">
                 <p class="small opacity-50">&copy; 2026 JUSTSALE POS System. Developed by <a href="http://franklin.co.tz" class="text-white fw-bold text-decoration-none">Franklin</a>.</p>
                 <p class="small opacity-50 mt-2 mb-0">Payments secured via <strong>Flutterwave</strong>.</p>
-                <span class="badge bg-white text-dark mt-3 opacity-25">Official Build v2.0.4</span>
+                <span class="badge bg-white text-dark mt-3 opacity-25">Official Build v2.0.5</span>
             </div>
         </div>
     </div>
