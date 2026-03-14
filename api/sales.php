@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'checkout') {
         exit;
     }
     
-    $stmt = $pdo->prepare("SELECT s.*, u.username, c.name as customer_name FROM sales s 
+    $stmt = $pdo->prepare("SELECT s.*, u.username, c.name as customer_name, c.tin as customer_tin FROM sales s 
                            JOIN users u ON s.user_id = u.id 
                            LEFT JOIN customers c ON s.customer_id = c.id 
                            WHERE s.id = ?");

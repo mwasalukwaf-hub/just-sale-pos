@@ -984,7 +984,15 @@ async function printReceipt(type) {
                 ${companySettings.company_website ? `<div style="text-align: center; font-size: 12px; margin-bottom: 2px;">Web: ${companySettings.company_website}</div>` : ''}
                 ${companySettings.company_tin ? `<div style="text-align: center; font-size: 12px; margin-bottom: 2px;">TIN: ${companySettings.company_tin}</div>` : ''}
                 ${companySettings.company_vrn ? `<div style="text-align: center; font-size: 12px; margin-bottom: 2px;">VRN: ${companySettings.company_vrn}</div>` : ''}
-                <div style="text-align: center; margin-bottom: 20px; font-weight: bold; margin-top: 5px;">Receipt #${sale.id}</div>
+                
+                ${sale.customer_name ? `
+                <div style="border-top: 1px solid #000; margin-top: 10px; padding-top: 8px; text-align: center;">
+                    <div style="font-weight: bold; font-size: 16px;">${sale.customer_name.toUpperCase()}</div>
+                    ${sale.customer_tin ? `<div style="font-size: 12px;">TIN: ${sale.customer_tin}</div>` : ''}
+                </div>
+                ` : ''}
+
+                <div style="text-align: center; margin-bottom: 10px; font-weight: bold; margin-top: 5px;">Receipt #${sale.id}</div>
                 <div style="border-bottom: 1px dashed #000; margin-bottom: 10px;"></div>
                 <table style="width: 100%; border-collapse: collapse;">
                     ${sale.items.map(i => `
@@ -1012,7 +1020,6 @@ async function printReceipt(type) {
                     <span>${companySettings.company_currency_code || '$'} ${parseFloat(sale.change_amount).toFixed(2)}</span>
                 </div>
                 <div style="text-align: center; margin-top: 20px; font-size: 12px;">
-                    ${sale.customer_name ? `Customer: ${sale.customer_name}<br>` : ''}
                     Cashier: ${sale.username}<br>
                     ${sale.sale_date}
                 </div>
@@ -1043,10 +1050,10 @@ async function printReceipt(type) {
                     </div>
                 </div>
                 
-                <div style="margin-top: 40px; border-top: 1px solid #dee2e6; padding-top: 20px;">
-                    <strong>Billed To:</strong><br>
-                    ${sale.customer_name || 'Walk-in Customer'}<br><br>
-                    <strong>Cashier:</strong> ${sale.username}
+                <div style="margin-top: 30px; border: 1px solid #eee; padding: 15px; border-radius: 8px; background: #fdfdfd;">
+                    <div style="font-size: 1.1em; font-weight: bold; color: #333;">BILLED TO: ${sale.customer_name ? sale.customer_name.toUpperCase() : 'WALK-IN CUSTOMER'}</div>
+                    ${sale.customer_tin ? `<div style="margin-top: 5px; color: #555;"><strong>TIN:</strong> ${sale.customer_tin}</div>` : ''}
+                    <div style="margin-top: 5px; color: #777; font-size: 0.9em;"><strong>CASHIER:</strong> ${sale.username.toUpperCase()}</div>
                 </div>
                 
                 <table style="width: 100%; margin-top: 40px; border-collapse: collapse;">

@@ -47,8 +47,27 @@ if (!empty($sale['customer_tin'])) {
     $meta['Customer TIN'] = $sale['customer_tin'];
 }
 
+$customer_html = '';
+if ($sale['customer_id']) {
+    $show_tin = ($settings['receipt_show_tin'] ?? 'yes') === 'yes';
+    $customer_html = '<div style="margin: 15px 0; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">';
+    $customer_html .= '<div style="font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 2px;">' . strtoupper($sale['customer_name']) . '</div>';
+    if ($show_tin && !empty($sale['customer_tin'])) {
+        $customer_html .= '<div style="font-size: 11px; color: #64748b;"><strong>TAX ID / TIN:</strong> ' . $sale['customer_tin'] . '</div>';
+    }
+    if (!empty($sale['customer_address'])) {
+        $customer_html .= '<div style="font-size: 10px; color: #64748b; margin-top: 4px;">' . $sale['customer_address'] . '</div>';
+    }
+    $customer_html .= '</div>';
+}
+
+$customer_pos = $settings['receipt_customer_pos'] ?? 'top';
+
 ob_start();
 echo render_report_header("Official Sales Receipt", $settings, 'pdf', $meta);
+
+// Customer Top Position
+if ($customer_pos === 'top') echo $customer_html;
 
 if (!empty($settings['receipt_header'])) {
     echo '<div style="margin: 15px 0; font-style: italic; color: #555; text-align: center; border: 1px dashed #ddd; padding: 10px; border-radius: 5px;">' . nl2br($settings['receipt_header']) . '</div>';
@@ -112,6 +131,9 @@ if (!empty($settings['receipt_header'])) {
     </table>
 </div>
 <div style="clear: both;"></div>
+
+<!-- Customer Bottom Position -->
+<?php if ($customer_pos === 'bottom') echo $customer_html; ?>
 
 <?php 
 if(!empty($settings['receipt_footer'])) {

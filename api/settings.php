@@ -67,6 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'get') {
         'receipt_footer' => $_POST['receipt_footer'] ?? '',
         'tax_percent' => $_POST['tax_percent'] ?? '0',
         'receipt_show_logo' => $_POST['receipt_show_logo'] ?? 'yes',
+        'receipt_customer_pos' => $_POST['receipt_customer_pos'] ?? 'top',
+        'receipt_show_tin' => $_POST['receipt_show_tin'] ?? 'yes',
     ];
 
     try {

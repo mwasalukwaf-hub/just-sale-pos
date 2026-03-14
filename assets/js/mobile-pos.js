@@ -452,14 +452,83 @@ async function submitOrder() {
         
         if (data.success) {
             await showAlert("Order has been placed successfully!", "Success", "success");
+            const saleId = data.sale_id;
+            
+            // Fetch full sale data for printing
+            const saleRes = await fetch(`api/sales.php?action=receipt&id=${saleId}`);
+            const saleData = await saleRes.json();
+            
+            if (saleData.success) {
+                printThermal(saleData.data);
+            }
+
             cart = [];
             renderCart();
             closeCheckout();
-            window.print(); 
         } else {
             showAlert(data.message, "Order Failed", "error");
         }
     } catch (e) {
         showAlert("Server communication error. Please try again.", "Error", "error");
     }
+}
+
+async function printThermal(sale) {
+    // Load settings first
+    const sRes = await fetch('api/settings.php?action=get');
+    const sData = await sRes.json();
+    const settings = sData.success ? sData.data : {};
+    const symbol = settings.company_currency_code || '$';
+
+    const html = `
+        <div style="font-family: monospace; width: 300px; margin: 0 auto; padding: 10px; font-size: 14px;">
+            <h2 style="text-align: center; margin-bottom: 5px;">${settings.company_name || 'JUSTSALE'}</h2>
+            ${settings.company_address ? `<div style="text-align: center; font-size: 12px; margin-bottom: 2px;">${settings.company_address}</div>` : ''}
+            ${(settings.company_city || settings.company_country) ? `<div style="text-align: center; font-size: 12px; margin-bottom: 2px;">${[settings.company_city, settings.company_country].filter(Boolean).join(', ')}</div>` : ''}
+            ${settings.company_tin ? `<div style="text-align: center; font-size: 12px; margin-bottom: 2px;">TIN: ${settings.company_tin}</div>` : ''}
+
+            ${sale.customer_name ? `
+            <div style="border-top: 1px solid #000; margin-top: 10px; padding-top: 8px; text-align: center;">
+                <div style="font-weight: bold; font-size: 16px;">${sale.customer_name.toUpperCase()}</div>
+                ${sale.customer_tin ? `<div style="font-size: 12px;">TIN: ${sale.customer_tin}</div>` : ''}
+            </div>
+            ` : ''}
+
+            <div style="text-align: center; margin-bottom: 10px; font-weight: bold; margin-top: 5px;">Receipt #${sale.id}</div>
+            <div style="border-bottom: 1px dashed #000; margin-bottom: 10px;"></div>
+            <table style="width: 100%; border-collapse: collapse;">
+                ${sale.items.map(i => `
+                    <tr><td colspan="3">${i.name}</td></tr>
+                    <tr>
+                        <td>${i.quantity}x</td>
+                        <td style="text-align: right;">${symbol} ${parseFloat(i.price).toFixed(2)}</td>
+                        <td style="text-align: right;">${symbol} ${parseFloat(i.subtotal).toFixed(2)}</td>
+                    </tr>
+                `).join('')}
+            </table>
+            <div style="border-bottom: 1px dashed #000; margin: 10px 0;"></div>
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
+                <span>TOTAL</span>
+                <span>${symbol} ${parseFloat(sale.total_amount).toFixed(2)}</span>
+            </div>
+            <div style="text-align: center; margin-top: 20px; font-size: 12px;">
+                Cashier: ${sale.username}<br>
+                ${sale.sale_date}
+            </div>
+            <div style="text-align: center; margin-top: 10px;">Thank you for your visit!</div>
+        </div>
+    `;
+
+    let printIframe = document.getElementById('silentPrintIframe');
+    if (!printIframe) {
+        printIframe = document.createElement('iframe');
+        printIframe.id = 'silentPrintIframe';
+        printIframe.style.display = 'none';
+        document.body.appendChild(printIframe);
+    }
+
+    const doc = printIframe.contentWindow.document;
+    doc.open();
+    doc.write(`<html><body onload="window.print()">${html}</body></html>`);
+    doc.close();
 }

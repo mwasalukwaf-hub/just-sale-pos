@@ -92,6 +92,12 @@ async function loadSettings() {
                 document.getElementById('receipt_footer').value = s.receipt_footer || '';
                 document.getElementById('tax_percent').value = s.tax_percent || '0';
                 document.getElementById('receipt_show_logo').value = s.receipt_show_logo || 'yes';
+                if (document.getElementById('receipt_customer_pos')) {
+                    document.getElementById('receipt_customer_pos').value = s.receipt_customer_pos || 'top';
+                }
+                if (document.getElementById('receipt_show_tin')) {
+                    document.getElementById('receipt_show_tin').value = s.receipt_show_tin || 'yes';
+                }
             }
 
             if (s.company_logo && s.company_logo !== '') {
