@@ -8,6 +8,14 @@ let paymentMethod = 'Cash';
 let selectedCustomer = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(() => console.log("SW Registered"));
+    }
+
+    // PWA Installation Detection
+    initPWAInstallation();
+
     // Initial load
     await checkAuth();
     await checkShiftStatus();
@@ -348,6 +356,44 @@ function selectCustomer(customer) {
         display.innerHTML = `<i class="fa-solid fa-user-circle me-1"></i> Walk-in Customer`;
     }
     closeCustomerModal();
+}
+
+// PWA Management
+let deferredPrompt;
+function initPWAInstallation() {
+    const overlay = document.getElementById('pwaInstallOverlay');
+    const androidBtn = document.getElementById('androidInstallBtn');
+    const iosBox = document.getElementById('iosInstallInstructions');
+
+    // Check if already in standalone mode
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isStandalone) return;
+
+    // Detection for iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    if (isIOS) {
+        overlay.style.display = 'flex';
+        iosBox.style.display = 'block';
+    }
+
+    // Detection for Android/Chrome
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        overlay.style.display = 'flex';
+        androidBtn.style.display = 'block';
+    });
+
+    androidBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            overlay.style.display = 'none';
+        }
+        deferredPrompt = null;
+    });
 }
 
 async function handleAddCustomer(e) {
