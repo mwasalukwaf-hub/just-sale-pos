@@ -127,7 +127,6 @@ function renderProducts(searchTerm = '') {
         item.className = 'product-list-item';
         item.onclick = () => addToCart(p);
         item.innerHTML = `
-            <img src="${p.image_path || 'assets/img/placeholder.png'}" class="product-list-img" onerror="this.src='assets/img/placeholder.png'">
             <div class="product-list-info">
                 <span class="product-list-title">${p.name}</span>
                 <span class="product-list-price">${formatPrice(p.selling_price)}</span>
