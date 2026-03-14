@@ -208,24 +208,14 @@ body {
 }
 
 .pos-products-grid {
-    flex: 1; /* Takes remaining space */
+    flex: 1;
     overflow-y: auto;
-    display: block; /* Switch from grid to list */
-    padding: 0;
     background: white;
-}
-
-.product-list-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    border-bottom: 1px solid #f1f3f5;
-    cursor: pointer;
-    gap: 15px;
+    width: 100%;
 }
 
 .product-list-item:active {
-    background-color: #f8fafc;
+    background-color: #e9ecef !important;
 }
 
 .product-list-img {

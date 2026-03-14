@@ -123,15 +123,16 @@ function renderProducts(searchTerm = '') {
     });
 
     filtered.forEach(p => {
-        const item = document.createElement('div');
-        item.className = 'product-list-item';
+        const item = document.createElement('li');
+        item.className = 'list-group-item product-list-item d-flex align-items-center justify-content-between p-3';
+        item.style.cursor = 'pointer';
         item.onclick = () => addToCart(p);
         item.innerHTML = `
             <div class="product-list-info">
-                <span class="product-list-title">${p.name}</span>
-                <span class="product-list-price">${formatPrice(p.selling_price)}</span>
+                <span class="product-list-title h6 fw-bold mb-1 d-block">${p.name}</span>
+                <span class="product-list-price text-success fw-bold">${formatPrice(p.selling_price)}</span>
             </div>
-            <i class="fa-solid fa-plus-circle text-success" style="font-size: 20px;"></i>
+            <i class="fa-solid fa-plus-circle text-success fs-4"></i>
         `;
         grid.appendChild(item);
     });
