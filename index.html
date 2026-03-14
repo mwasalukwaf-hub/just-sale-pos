@@ -190,11 +190,18 @@
             }
         };
 
+        // Mobile redirection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
         // Auto-redirect if already logged in
         fetch('api/auth.php?action=me').then(r => r.json()).then(data => {
             if (data.success && data.user) {
-                if (data.user.role === 'Cashier') window.location.href = 'pos';
-                else window.location.href = 'admin';
+                if (isMobile) {
+                    window.location.href = 'mobile-pos.html';
+                } else {
+                    if (data.user.role === 'Cashier') window.location.href = 'pos';
+                    else window.location.href = 'admin';
+                }
             }
         });
     </script>

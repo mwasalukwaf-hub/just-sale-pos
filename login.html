@@ -74,6 +74,8 @@
     <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
     <script>
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
         async function showForgotPassword() {
             const { value: email } = await Swal.fire({
                 title: 'Forgot Password',
@@ -132,12 +134,16 @@
                         showConfirmButton: false,
                         timer: 1000
                     }).then(() => {
-                        if (data.role === 'Cashier') {
-                            window.location.href = 'pos';
-                        } else if (data.role === 'Admin' || data.role === 'Accounts') {
-                            window.location.href = 'admin';
+                        if (isMobile) {
+                            window.location.href = 'mobile-pos.html';
                         } else {
-                            window.location.href = 'pos';
+                            if (data.role === 'Cashier') {
+                                window.location.href = 'pos';
+                            } else if (data.role === 'Admin' || data.role === 'Accounts') {
+                                window.location.href = 'admin';
+                            } else {
+                                window.location.href = 'pos';
+                            }
                         }
                     });
                 } else {
@@ -156,8 +162,12 @@
         // Redirect if already logged in
         fetch('api/auth.php?action=me').then(r => r.json()).then(data => {
             if (data.success && data.user) {
-                if (data.user.role === 'Cashier') window.location.href = 'pos';
-                else window.location.href = 'admin';
+                if (isMobile) {
+                    window.location.href = 'mobile-pos.html';
+                } else {
+                    if (data.user.role === 'Cashier') window.location.href = 'pos';
+                    else window.location.href = 'admin';
+                }
             }
         });
 
