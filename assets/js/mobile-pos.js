@@ -123,18 +123,18 @@ function renderProducts(searchTerm = '') {
     });
 
     filtered.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.onclick = () => addToCart(p);
-        card.innerHTML = `
-            <img src="${p.image_path || 'assets/img/placeholder.png'}" class="product-img" onerror="this.src='assets/img/placeholder.png'">
-            <div class="product-info">
-                <span class="product-title">${p.name}</span>
-                <span class="product-variant">${p.category_name || ''}</span>
-                <span class="product-price">${formatPrice(p.selling_price)}</span>
+        const item = document.createElement('div');
+        item.className = 'product-list-item';
+        item.onclick = () => addToCart(p);
+        item.innerHTML = `
+            <img src="${p.image_path || 'assets/img/placeholder.png'}" class="product-list-img" onerror="this.src='assets/img/placeholder.png'">
+            <div class="product-list-info">
+                <span class="product-list-title">${p.name}</span>
+                <span class="product-list-price">${formatPrice(p.selling_price)}</span>
             </div>
+            <i class="fa-solid fa-plus-circle text-success" style="font-size: 20px;"></i>
         `;
-        grid.appendChild(card);
+        grid.appendChild(item);
     });
 }
 
