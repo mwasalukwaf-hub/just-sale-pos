@@ -152,12 +152,6 @@ function addToCart(product) {
         });
     }
     renderCart();
-
-    // Visual feedback
-    showAlert(`Added ${product.name} to cart`, "Cart Updated", "success");
-    setTimeout(() => {
-        document.getElementById('mobileModal').classList.remove('modal-active');
-    }, 700);
 }
 
 function renderCart() {
