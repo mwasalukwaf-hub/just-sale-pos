@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mobile POS | JUSTSALE</title>
     <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="assets/css/mobile-pos.css">
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#006400">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="JUSTSALE">
@@ -46,9 +47,9 @@
     </div>
 
     <!-- Header & Customer Combined Section -->
-    <div style="background-color: var(--pos-green); color: white;">
+    <div style="background-color: var(--pos-green); color: white; padding-top: env(safe-area-inset-top);">
         <!-- Header Section -->
-        <div class="pos-header" style="justify-content: center; padding-top: 15px; padding-bottom: 5px;">
+        <div class="pos-header" style="justify-content: center; padding-top: 10px; padding-bottom: 5px;">
             <span class="fw-bold" style="font-size: 16px; letter-spacing: 1px;">JUSTSALE POS</span>
         </div>
 
@@ -113,7 +114,7 @@
         <div class="grand-total-bar">
             Grand Total : <span id="totalAmount">0.00</span>
         </div>
-        <div class="bottom-actions">
+        <div class="bottom-actions" style="padding-bottom: calc(8px + env(safe-area-inset-bottom));">
             <button class="btn-bottom-icon btn-calc"><i class="fa-solid fa-calculator"></i></button>
             <button class="btn-bottom-icon btn-clear" onclick="clearCart()"><i class="fa-solid fa-trash-can"></i></button>
             <button class="btn-bottom-main btn-quick-order">Quick Order</button>
