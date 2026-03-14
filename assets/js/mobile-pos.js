@@ -334,13 +334,13 @@ function renderCustomerList(customers) {
 
     customers.forEach(c => {
         const item = document.createElement('div');
-        item.style = 'padding:15px; border-bottom:1px solid #f8fafc; display:flex; align-items:center; justify-content:space-between; cursor:pointer;';
+        item.style = 'padding:18px 15px; border-bottom:1px solid #f1f3f5; display:flex; align-items:center; justify-content:space-between; cursor:pointer;';
         item.innerHTML = `
             <div style="display:flex; align-items:center;">
-                <i class="fa-solid fa-user-circle me-3" style="font-size:24px; color:var(--pos-green);"></i>
-                <div class="fw-bold" style="font-size:15px; color:#333;">${c.name}</div>
+                <i class="fa-solid fa-user-circle me-3" style="font-size:26px; color:var(--pos-green);"></i>
+                <div class="fw-bold" style="font-size:17px; color:#1a1a1a; letter-spacing:-0.3px;">${c.name}</div>
             </div>
-            <div class="small fw-bold text-muted" style="letter-spacing:0.5px;">${c.mobile || '—'}</div>
+            <div class="fw-bold" style="font-size:14px; color:#666; letter-spacing:0.5px;">${c.mobile || '—'}</div>
         `;
         item.onclick = () => selectCustomer(c);
         container.appendChild(item);
