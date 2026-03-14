@@ -20,14 +20,19 @@
         <a href="admin" class="mt-4 text-primary fw-bold text-decoration-none small">GO TO BACKOFFICE</a>
     </div>
 
-    <!-- Header Section -->
-    <div class="pos-header">
-        <span id="pos-time">00:00 AM</span>
-        <span class="fw-bold">JUSTSALE MOBILE</span>
-        <div class="header-icons">
-            <i class="fa-solid fa-signal me-2"></i>
-            <i class="fa-solid fa-wifi me-2"></i>
-            <i class="fa-solid fa-battery-three-quarters"></i>
+    <!-- Header & Customer Combined Section -->
+    <div style="background-color: var(--pos-green); color: white;">
+        <!-- Header Section -->
+        <div class="pos-header" style="justify-content: center; padding-top: 15px; padding-bottom: 5px;">
+            <span class="fw-bold" style="font-size: 16px; letter-spacing: 1px;">JUSTSALE POS</span>
+        </div>
+
+        <!-- Customer Section -->
+        <div style="padding: 10px 15px 15px 15px; display: flex; align-items: center; justify-content: space-between;">
+            <div id="selectedCustomer" style="font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9);">
+                <i class="fa-solid fa-user-circle me-1"></i> Walk-in Customer
+            </div>
+            <button onclick="openCustomerModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 20px;">CHANGE</button>
         </div>
     </div>
 
@@ -37,14 +42,6 @@
             <input type="text" id="productSearch" class="pos-search-input" placeholder="Enter Search Product" style="width:100%;">
         </div>
         <button class="btn-add-item"><i class="fa-solid fa-magnifying-glass"></i></button>
-    </div>
-
-    <!-- Customer Section -->
-    <div style="padding:10px; background:white; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between;">
-        <div id="selectedCustomer" style="font-size:12px; font-weight:700; color:#666;">
-            <i class="fa-solid fa-user-circle me-1"></i> Walk-in Customer
-        </div>
-        <button onclick="openCustomerModal()" style="background:none; border:none; color:var(--pos-green); font-size:12px; font-weight:700;">CHANGE</button>
     </div>
 
     <!-- Cart Section -->

@@ -8,9 +8,6 @@ let paymentMethod = 'Cash';
 let selectedCustomer = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    updateTime();
-    setInterval(updateTime, 60000);
-
     // Initial load
     await checkAuth();
     await checkShiftStatus();
@@ -279,16 +276,6 @@ function formatPrice(p) {
     }).format(p);
 }
 
-function updateTime() {
-    const now = new Date();
-    let hours = now.getHours();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; 
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    document.getElementById('pos-time').innerText = `${hours}:${minutes} ${ampm}`;
-}
-
 // Customer Management
 function openCustomerModal() {
     const modal = document.getElementById('customerModal');
@@ -356,7 +343,7 @@ function selectCustomer(customer) {
     selectedCustomer = customer;
     const display = document.getElementById('selectedCustomer');
     if (customer) {
-        display.innerHTML = `<i class="fa-solid fa-user-circle me-1 text-success"></i> ${customer.name}`;
+        display.innerHTML = `<i class="fa-solid fa-user-circle me-1"></i> ${customer.name}`;
     } else {
         display.innerHTML = `<i class="fa-solid fa-user-circle me-1"></i> Walk-in Customer`;
     }
