@@ -116,6 +116,72 @@ try {
         $stmt = $pdo->prepare("DELETE FROM payments WHERE id = ?");
         $stmt->execute([$id]);
         echo json_encode(['success' => true]);
+
+    } elseif ($action === 'add_version') {
+        $version = $_POST['version_number'] ?? '';
+        $date = $_POST['release_date'] ?? date('Y-m-d');
+        $changelog = $_POST['changelog'] ?? '';
+        $is_critical = isset($_POST['is_critical']) ? 1 : 0;
+        $php_version = $_POST['min_php_version'] ?? '7.4';
+
+        if (empty($version)) {
+            echo json_encode(['success' => false, 'message' => 'Version number is required']);
+            exit;
+        }
+
+        $download_url = '';
+
+        // Handle File upload
+        if (isset($_FILES['update_zip']) && $_FILES['update_zip']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = '../../updates/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            
+            $fileExtension = strtolower(pathinfo($_FILES['update_zip']['name'], PATHINFO_EXTENSION));
+            if ($fileExtension !== 'zip') {
+                echo json_encode(['success' => false, 'message' => 'Only .zip files are allowed']);
+                exit;
+            }
+
+            $fileName = 'v' . $version . '_' . time() . '.zip';
+            $destPath = $uploadDir . $fileName;
+            
+            if (move_uploaded_file($_FILES['update_zip']['tmp_name'], $destPath)) {
+                $download_url = 'https://justsalepos.franklin.co.tz/updates/' . $fileName;
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to move uploaded file']);
+                exit;
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'ZIP package is required']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO system_versions (version_number, release_date, download_url, changelog, is_critical, min_php_version) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$version, $date, $download_url, $changelog, $is_critical, $php_version]);
+
+        echo json_encode(['success' => true, 'message' => 'Version v' . $version . ' pushed successfully!']);
+
+    } elseif ($action === 'delete_version') {
+        $id = $_POST['id'] ?? null;
+        
+        // Get the file path first to delete it from server
+        $stmt = $pdo->prepare("SELECT download_url FROM system_versions WHERE id = ?");
+        $stmt->execute([$id]);
+        $url = $stmt->fetchColumn();
+
+        if ($url) {
+            $fileName = basename($url);
+            $filePath = '../../updates/' . $fileName;
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM system_versions WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
     }
 
 } catch (Exception $e) {

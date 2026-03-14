@@ -52,6 +52,7 @@ try {
     <nav class="nav flex-column">
         <a class="nav-link active" href="index"><i class="fa-solid fa-gauge me-3"></i> Dashboard</a>
         <a class="nav-link" href="licenses"><i class="fa-solid fa-key me-3"></i> Manage Licenses</a>
+        <a class="nav-link" href="updates"><i class="fa-solid fa-cloud-arrow-up me-3"></i> Software Updates</a>
         <a class="nav-link" href="users"><i class="fa-solid fa-users me-3"></i> Portal Users</a>
         <a class="nav-link" href="payments"><i class="fa-solid fa-receipt me-3"></i> Payments</a>
         <hr class="opacity-10 my-4">

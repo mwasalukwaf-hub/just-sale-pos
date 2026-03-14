@@ -143,6 +143,7 @@
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
                 <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+                <li class="nav-item"><a class="nav-link" href="versions">Roadmap</a></li>
                 <li class="nav-item"><a class="nav-link" href="help">Documentation</a></li>
                 <li class="nav-item"><a class="nav-link btn btn-primary-premium btn-sm rounded-pill px-4 ms-lg-3 text-white" href="login">Login</a></li>
             </ul>
