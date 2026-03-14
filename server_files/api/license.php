@@ -119,9 +119,8 @@ if ($action === 'activate') {
 } elseif ($action === 'check_update') {
     $currentVersion = $_GET['current_version'] ?? '';
 
-    $stmt = $pdo->prepare("SELECT * FROM system_versions ORDER BY id DESC LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM system_versions ORDER BY v_entry DESC LIMIT 1");
     $stmt->execute();
-    $latest = $stmt->fetch();
 
     if ($latest) {
         $updateAvailable = version_compare($latest['version_number'], $currentVersion, '>');

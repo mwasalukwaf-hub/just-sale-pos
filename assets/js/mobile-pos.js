@@ -124,12 +124,14 @@ function renderProducts(searchTerm = '') {
 
     filtered.forEach(p => {
         const item = document.createElement('li');
-        item.className = 'list-group-item product-list-item d-flex align-items-center justify-content-between px-3 py-4';
+        item.className = 'list-group-item product-list-item d-flex align-items-center justify-content-between px-3 py-3';
+        item.style.borderLeft = 'none';
+        item.style.borderRight = 'none';
         item.style.cursor = 'pointer';
         item.onclick = () => addToCart(p);
         item.innerHTML = `
-            <div class="fw-bold" style="font-size: 16px; color: #1a1a1a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; padding-right: 15px;">${p.name}</div>
-            <div class="fw-bold text-success" style="font-size: 18px;">${formatPrice(p.selling_price)}</div>
+            <div class="fw-bold" style="font-size: 15px; color: #1a1a1a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; padding-right: 15px;">${p.name}</div>
+            <div class="fw-bold text-success" style="font-size: 16px;">${formatPrice(p.selling_price)}</div>
         `;
         grid.appendChild(item);
     });
@@ -144,8 +146,7 @@ function addToCart(product) {
             id: product.id,
             name: product.name,
             price: parseFloat(product.selling_price),
-            qty: 1,
-            image: product.image_path
+            qty: 1
         });
     }
     renderCart();

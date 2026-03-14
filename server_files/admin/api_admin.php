@@ -164,11 +164,11 @@ try {
         echo json_encode(['success' => true, 'message' => 'Version v' . $version . ' pushed successfully!']);
 
     } elseif ($action === 'delete_version') {
-        $id = $_POST['id'] ?? null;
+        $v_id = $_POST['id'] ?? null;
         
         // Get the file path first to delete it from server
-        $stmt = $pdo->prepare("SELECT download_url FROM system_versions WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt = $pdo->prepare("SELECT download_url FROM system_versions WHERE v_entry = ?");
+        $stmt->execute([$v_id]);
         $url = $stmt->fetchColumn();
 
         if ($url) {
@@ -179,8 +179,8 @@ try {
             }
         }
 
-        $stmt = $pdo->prepare("DELETE FROM system_versions WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt = $pdo->prepare("DELETE FROM system_versions WHERE v_entry = ?");
+        $stmt->execute([$v_id]);
         echo json_encode(['success' => true]);
     }
 

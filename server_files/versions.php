@@ -47,7 +47,7 @@ try {
     <div class="row justify-content-center">
         <div class="col-lg-9">
             <?php
-            $stmt = $pdo->query("SELECT * FROM system_versions ORDER BY release_date DESC, id DESC");
+            $stmt = $pdo->query("SELECT * FROM system_versions ORDER BY release_date DESC, v_entry DESC");
             while($row = $stmt->fetch()): 
             ?>
             <div class="release-card <?= $row['is_critical'] ? 'critical-alert' : '' ?>">

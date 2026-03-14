@@ -74,7 +74,7 @@ try {
             </thead>
             <tbody>
                 <?php
-                $stmt = $pdo->query("SELECT * FROM system_versions ORDER BY release_date DESC, id DESC");
+                $stmt = $pdo->query("SELECT * FROM system_versions ORDER BY release_date DESC, v_entry DESC");
                 while($row = $stmt->fetch()): 
                 ?>
                 <tr>
@@ -90,7 +90,7 @@ try {
                     <td><span class="font-monospace small opacity-50"><?= $row['min_php_version'] ?>+</span></td>
                     <td><a href="<?= $row['download_url'] ?>" class="text-decoration-none small text-primary" target="_blank"><?= basename($row['download_url']) ?></a></td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteVersion(<?= $row['id'] ?>)"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteVersion(<?= $row['v_entry'] ?>)"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
                 <?php endwhile; ?>
